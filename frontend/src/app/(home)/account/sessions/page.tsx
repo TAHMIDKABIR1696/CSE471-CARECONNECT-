@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import proxy from "@/lib/proxy";
 import toast from "react-hot-toast";
@@ -44,23 +44,26 @@ export default function SessionsPage() {
   const [loading, setLoading] = useState(true);
   const [trackingInterval, setTrackingInterval] = useState<NodeJS.Timeout | null>(null);
   const [currentLocation, setCurrentLocation] = useState<ILocation | null>(null);
+  const trackingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const hasFetched = useRef(false);
 
   useEffect(() => {
-    // Wait for auth to load
     if (authLoading) {
       return;
     }
 
-    // Check if user is authenticated
     if (!user) {
       router.push("/login");
       return;
     }
 
+    // Prevent re-fetching on every render
+    if (hasFetched.current) return;
+    hasFetched.current = true;
+
     fetchLiveSessions();
     fetchSessionHistory();
 
-    // Request location permission
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -77,11 +80,11 @@ export default function SessionsPage() {
     }
 
     return () => {
-      if (trackingInterval) {
-        clearInterval(trackingInterval);
+      if (trackingIntervalRef.current) {
+        clearInterval(trackingIntervalRef.current);
       }
     };
-  }, [user, authLoading, router]);
+  }, [user, authLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchLiveSessions = async () => {
     try {
@@ -181,6 +184,11 @@ export default function SessionsPage() {
   };
 
   const startLocationTracking = (bookingId: number) => {
+    // Clear any existing interval before starting a new one
+    if (trackingIntervalRef.current) {
+      clearInterval(trackingIntervalRef.current);
+    }
+
     // Update location every 30 seconds
     const interval = setInterval(() => {
       if (navigator.geolocation) {
@@ -199,6 +207,7 @@ export default function SessionsPage() {
       }
     }, 30000); // 30 seconds
 
+    trackingIntervalRef.current = interval;
     setTrackingInterval(interval);
   };
 
