@@ -2,19 +2,21 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/server.js",
   "postinstall": "prisma generate",
   "scripts": {
-    "dev": "nodemon server.js",
-    "start": "node server.js",
+    "dev": "tsx watch server.ts",
+    "start": "node dist/server.js",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
     "prisma:studio": "prisma studio",
-    "prisma:seed": "node prisma/seed.js",
-    "db:push": "prisma db push && node prisma/seed.js"
+    "prisma:seed": "tsx prisma/seed.ts",
+    "db:push": "prisma db push && tsx prisma/seed.ts"
   },
   "prisma": {
-    "seed": "node prisma/seed.js"
+    "seed": "tsx prisma/seed.ts"
   },
   "keywords": [],
   "author": "",
@@ -40,7 +42,16 @@
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/multer": "^2.0.0",
+    "@types/node": "^25.3.3",
+    "@types/nodemailer": "^7.0.11",
+    "@types/uuid": "^10.0.0",
     "nodemon": "^3.1.11",
-    "prisma": "^5.10.0"
+    "prisma": "^5.10.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
   }
 }
