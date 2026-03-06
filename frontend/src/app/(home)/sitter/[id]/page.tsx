@@ -148,9 +148,13 @@ export default function SitterDetailsPage() {
         toast.success("Booking request sent!");
         router.push("/account/bookings");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Booking error:", error);
-      toast.error(error.response?.data?.message || "Booking failed.");
+      if (axios.isAxiosError(error)) {
+        toast.error(error.response?.data?.message || "Booking failed. Please ensure you have a parent profile set up in Settings.");
+      } else {
+        toast.error("Booking failed. Please try again.");
+      }
     } finally {
       setIsBooking(false);
     }
@@ -159,7 +163,7 @@ export default function SitterDetailsPage() {
   if (loading)
     return (
       <div className="flex justify-center py-20">
-        <Loader2 className="animate-spin text-teal-600" />
+        <Loader2 className="animate-spin text-purple-600" />
       </div>
     );
   if (!sitter)
@@ -188,16 +192,16 @@ export default function SitterDetailsPage() {
                   <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-2">
                     {sitter.user.name}
                     {sitter.user.isApproved && (
-                      <ShieldCheck className="h-6 w-6 text-teal-500" />
+                      <ShieldCheck className="h-6 w-6 text-purple-500" />
                     )}
                   </h1>
                   <div className="flex flex-wrap gap-4 mt-3 text-sm text-slate-600">
                     <span className="flex items-center gap-1">
-                      <MapPin className="h-4 w-4 text-teal-500" />{" "}
+                      <MapPin className="h-4 w-4 text-purple-500" />{" "}
                       {sitter.locationAddress || "No location"}
                     </span>
                     <span className="flex items-center gap-1">
-                      <Briefcase className="h-4 w-4 text-teal-500" />{" "}
+                      <Briefcase className="h-4 w-4 text-purple-500" />{" "}
                       {sitter.experienceYears} Years Exp.
                     </span>
                     <span className="flex items-center gap-1">
@@ -221,19 +225,19 @@ export default function SitterDetailsPage() {
             {/* Availability Schedule (Updated Display) */}
             <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100">
               <h3 className="font-bold text-lg text-slate-900 mb-4 flex items-center gap-2">
-                <Clock className="h-5 w-5 text-teal-600" /> Availability
+                <Clock className="h-5 w-5 text-purple-600" /> Availability
               </h3>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 {sortedAvailability.length > 0 ? (
                   sortedAvailability.map((slot, index) => (
                     <div
                       key={index}
-                      className="bg-teal-50 p-3 rounded-xl border border-teal-100 text-center"
+                      className="bg-purple-50 p-3 rounded-xl border border-purple-100 text-center"
                     >
-                      <p className="font-bold text-teal-800 text-sm capitalize">
+                      <p className="font-bold text-purple-800 text-sm capitalize">
                         {slot.dayOfWeek.toLowerCase()}
                       </p>
-                      <p className="text-xs text-teal-600 mt-1 font-medium">
+                      <p className="text-xs text-purple-600 mt-1 font-medium">
                         {formatTime(slot.startTime)} -{" "}
                         {formatTime(slot.endTime)}
                       </p>
@@ -258,7 +262,7 @@ export default function SitterDetailsPage() {
                   </span>
                   <span className="text-slate-500 text-sm"> / hour</span>
                 </div>
-                <div className="text-xs font-bold text-teal-700 bg-teal-100 px-3 py-1 rounded-full">
+                <div className="text-xs font-bold text-purple-700 bg-purple-100 px-3 py-1 rounded-full">
                   Available Now
                 </div>
               </div>
@@ -271,7 +275,7 @@ export default function SitterDetailsPage() {
                   <input
                     type="datetime-local"
                     required
-                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 outline-none"
+                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-500 outline-none"
                     onChange={(e) =>
                       setBooking({ ...booking, startTime: e.target.value })
                     }
@@ -284,7 +288,7 @@ export default function SitterDetailsPage() {
                   <input
                     type="datetime-local"
                     required
-                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 outline-none"
+                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-500 outline-none"
                     onChange={(e) =>
                       setBooking({ ...booking, endTime: e.target.value })
                     }
@@ -298,7 +302,7 @@ export default function SitterDetailsPage() {
                   <textarea
                     rows={2}
                     placeholder="Any special instructions..."
-                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 outline-none"
+                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-500 outline-none"
                     onChange={(e) =>
                       setBooking({ ...booking, note: e.target.value })
                     }
@@ -320,7 +324,7 @@ export default function SitterDetailsPage() {
                 <button
                   type="submit"
                   disabled={isBooking}
-                  className="w-full py-4 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl shadow-lg shadow-teal-200 transition-all flex items-center justify-center gap-2"
+                  className="w-full py-4 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl shadow-lg shadow-purple-200 transition-all flex items-center justify-center gap-2"
                 >
                   {isBooking ? (
                     <Loader2 className="animate-spin h-5 w-5" />

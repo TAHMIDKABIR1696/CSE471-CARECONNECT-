@@ -127,7 +127,7 @@ export default function AvailabilityPage() {
   if (fetching)
     return (
       <div className="flex justify-center p-20">
-        <Loader2 className="animate-spin text-teal-600" />
+        <Loader2 className="animate-spin text-purple-600" />
       </div>
     );
 
@@ -137,7 +137,7 @@ export default function AvailabilityPage() {
       <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-            <CalendarDays className="h-7 w-7 text-teal-600" /> Weekly
+            <CalendarDays className="h-7 w-7 text-purple-600" /> Weekly
             Availability
           </h1>
           <p className="text-slate-500 mt-1 text-sm">
@@ -148,7 +148,7 @@ export default function AvailabilityPage() {
         <button
           onClick={saveAvailability}
           disabled={loading}
-          className="flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-8 py-3 rounded-xl font-bold transition-all disabled:opacity-70 shadow-lg shadow-teal-200"
+          className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-xl font-bold transition-all disabled:opacity-70 shadow-lg shadow-purple-200"
         >
           {loading ? (
             <Loader2 className="animate-spin h-5 w-5" />
@@ -178,7 +178,7 @@ export default function AvailabilityPage() {
                     <button
                       onClick={() => toggleDay(day)}
                       className={`w-12 h-7 rounded-full transition-colors relative ${
-                        isActive ? "bg-teal-500" : "bg-slate-300"
+                        isActive ? "bg-purple-500" : "bg-slate-300"
                       }`}
                     >
                       <div
@@ -207,7 +207,7 @@ export default function AvailabilityPage() {
                             onChange={(e) =>
                               handleTimeChange(day, "start", e.target.value)
                             }
-                            className="pl-3 pr-2 py-2 bg-white border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-teal-500 outline-none shadow-sm cursor-pointer"
+                            className="pl-3 pr-2 py-2 bg-white border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-purple-500 outline-none shadow-sm cursor-pointer"
                           />
                         </div>
                         <span className="text-slate-400 font-medium">to</span>
@@ -218,7 +218,7 @@ export default function AvailabilityPage() {
                             onChange={(e) =>
                               handleTimeChange(day, "end", e.target.value)
                             }
-                            className="pl-3 pr-2 py-2 bg-white border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-teal-500 outline-none shadow-sm cursor-pointer"
+                            className="pl-3 pr-2 py-2 bg-white border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-purple-500 outline-none shadow-sm cursor-pointer"
                           />
                         </div>
                       </div>
@@ -232,7 +232,7 @@ export default function AvailabilityPage() {
                   {/* 3. Status Badge */}
                   <div className="md:w-24 flex justify-end">
                     {isActive && (
-                      <div className="flex items-center gap-1.5 text-xs font-bold text-teal-700 bg-teal-50 px-3 py-1.5 rounded-full border border-teal-100">
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-purple-700 bg-purple-50 px-3 py-1.5 rounded-full border border-purple-100">
                         <CheckCircle2 className="h-3.5 w-3.5" /> Open
                       </div>
                     )}

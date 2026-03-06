@@ -43,19 +43,19 @@ export default function AdminSettingsPage() {
         <TabsList className="bg-white border border-slate-200 p-1 h-14 rounded-2xl gap-2 shadow-sm mb-8">
           <TabsTrigger
             value="profile"
-            className="rounded-xl px-6 py-2.5 data-[state=active]:bg-teal-600 data-[state=active]:text-white transition-all font-bold text-sm flex gap-2"
+            className="rounded-xl px-6 py-2.5 data-[state=active]:bg-purple-600 data-[state=active]:text-white transition-all font-bold text-sm flex gap-2"
           >
             <User className="h-4 w-4" /> Profile
           </TabsTrigger>
           <TabsTrigger
             value="security"
-            className="rounded-xl px-6 py-2.5 data-[state=active]:bg-teal-600 data-[state=active]:text-white transition-all font-bold text-sm flex gap-2"
+            className="rounded-xl px-6 py-2.5 data-[state=active]:bg-purple-600 data-[state=active]:text-white transition-all font-bold text-sm flex gap-2"
           >
             <Lock className="h-4 w-4" /> Security
           </TabsTrigger>
           <TabsTrigger
             value="system"
-            className="rounded-xl px-6 py-2.5 data-[state=active]:bg-teal-600 data-[state=active]:text-white transition-all font-bold text-sm flex gap-2"
+            className="rounded-xl px-6 py-2.5 data-[state=active]:bg-purple-600 data-[state=active]:text-white transition-all font-bold text-sm flex gap-2"
           >
             <Settings className="h-4 w-4" /> System
           </TabsTrigger>
@@ -67,7 +67,7 @@ export default function AdminSettingsPage() {
             <div className="md:col-span-2 space-y-6">
               <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm space-y-4">
                 <h3 className="font-bold text-slate-800 flex items-center gap-2 mb-4">
-                  <User className="h-5 w-5 text-teal-600" /> Basic Information
+                  <User className="h-5 w-5 text-purple-600" /> Basic Information
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
@@ -77,7 +77,7 @@ export default function AdminSettingsPage() {
                     <input
                       type="text"
                       defaultValue="Admin User"
-                      className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 outline-none"
+                      className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-500 outline-none"
                     />
                   </div>
                   <div className="space-y-2">
@@ -87,7 +87,7 @@ export default function AdminSettingsPage() {
                     <input
                       type="email"
                       defaultValue="admin@careconnect.com"
-                      className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 outline-none"
+                      className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-500 outline-none"
                     />
                   </div>
                 </div>
@@ -96,8 +96,8 @@ export default function AdminSettingsPage() {
 
             <div className="space-y-6">
               <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm text-center">
-                <div className="w-24 h-24 bg-teal-50 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-teal-100 relative group">
-                  <span className="text-3xl font-bold text-teal-600">A</span>
+                <div className="w-24 h-24 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-purple-100 relative group">
+                  <span className="text-3xl font-bold text-purple-600">A</span>
                   <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
                     <Globe className="text-white h-5 w-5" />
                   </div>
@@ -185,7 +185,7 @@ export default function AdminSettingsPage() {
                   <input
                     type="number"
                     defaultValue="10"
-                    className="w-20 p-2 bg-slate-50 border border-slate-200 rounded-lg text-center font-bold text-teal-600"
+                    className="w-20 p-2 bg-slate-50 border border-slate-200 rounded-lg text-center font-bold text-purple-600"
                   />
                 </div>
                 <div className="flex items-center justify-between">
@@ -252,7 +252,7 @@ export default function AdminSettingsPage() {
         <Button
           onClick={handleSave}
           disabled={loading}
-          className="bg-teal-600 hover:bg-teal-700 text-white px-10 py-6 rounded-2xl font-bold text-lg shadow-xl shadow-teal-100 transition-all flex items-center gap-3"
+          className="bg-purple-600 hover:bg-purple-700 text-white px-10 py-6 rounded-2xl font-bold text-lg shadow-xl shadow-purple-100 transition-all flex items-center gap-3"
         >
           {loading ? (
             <Loader2 className="animate-spin h-5 w-5" />

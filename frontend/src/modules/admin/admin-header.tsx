@@ -47,7 +47,7 @@ export default function AdminHeader() {
         <input
           type="text"
           placeholder="Search users, bookings..."
-          className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all"
+          className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
         />
       </div>
 
@@ -72,7 +72,7 @@ export default function AdminHeader() {
             <button className="flex items-center gap-3 pl-2 pr-2 py-1.5 rounded-full hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100 group">
               {/* Avatar with Verified Badge */}
               <div className="relative">
-                <div className="w-10 h-10 bg-teal-600 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md shadow-teal-200">
+                <div className="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md shadow-purple-200">
                   {user?.name?.charAt(0).toUpperCase() || "A"}
                 </div>
 
@@ -84,7 +84,7 @@ export default function AdminHeader() {
 
               {/* User Info (Name & Email) */}
               <div className="text-left hidden md:block">
-                <p className="text-sm font-bold text-slate-700 leading-none group-hover:text-teal-700 transition-colors">
+                <p className="text-sm font-bold text-slate-700 leading-none group-hover:text-purple-700 transition-colors">
                   {user?.name || "Admin User"}
                 </p>
                 <p className="text-xs text-slate-500 mt-1 font-medium truncate max-w-[150px]">

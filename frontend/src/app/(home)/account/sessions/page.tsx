@@ -238,7 +238,7 @@ export default function SessionsPage() {
   if (authLoading || loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="animate-spin h-8 w-8 text-teal-600" />
+        <Loader2 className="animate-spin h-8 w-8 text-purple-600" />
       </div>
     );
   }
@@ -251,12 +251,12 @@ export default function SessionsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-teal-600 to-slate-800 rounded-3xl p-8 text-white shadow-lg">
+      <div className="bg-gradient-to-r from-purple-600 to-slate-800 rounded-3xl p-8 text-white shadow-lg">
         <h1 className="text-3xl font-bold flex items-center gap-3">
           <Activity className="h-8 w-8" />
           Live Session Tracking
         </h1>
-        <p className="text-teal-100 mt-2">
+        <p className="text-purple-100 mt-2">
           {isParent
             ? "Track your babysitter's location in real-time"
             : "Manage your active babysitting sessions"}
@@ -341,7 +341,7 @@ export default function SessionsPage() {
                             Last Known Location
                           </p>
                           <div className="flex items-center gap-2">
-                            <MapPin className="h-4 w-4 text-teal-600" />
+                            <MapPin className="h-4 w-4 text-purple-600" />
                             <span className="text-sm text-slate-700">
                               {session.gpsLogs[session.gpsLogs.length - 1].lat.toFixed(6)},{" "}
                               {session.gpsLogs[session.gpsLogs.length - 1].lng.toFixed(6)}
@@ -350,7 +350,7 @@ export default function SessionsPage() {
                               href={`https://www.google.com/maps?q=${session.gpsLogs[session.gpsLogs.length - 1].lat},${session.gpsLogs[session.gpsLogs.length - 1].lng}`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-xs text-teal-600 hover:underline ml-auto"
+                              className="text-xs text-purple-600 hover:underline ml-auto"
                             >
                               View on Map
                             </a>
@@ -414,7 +414,7 @@ export default function SessionsPage() {
                       <button
                         onClick={() => startSession(session.id)}
                         disabled={!currentLocation}
-                        className="px-6 py-3 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                        className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                       >
                         <PlayCircle className="h-5 w-5" />
                         Start Session
@@ -497,7 +497,7 @@ export default function SessionsPage() {
                                   key={idx}
                                   className="flex items-center gap-2 text-xs text-slate-600"
                                 >
-                                  <MapPin className="h-3 w-3 text-teal-600" />
+                                  <MapPin className="h-3 w-3 text-purple-600" />
                                   <span>
                                     {log.lat.toFixed(6)}, {log.lng.toFixed(6)}
                                   </span>

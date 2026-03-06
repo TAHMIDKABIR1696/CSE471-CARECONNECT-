@@ -117,7 +117,7 @@ export default function VideoCallPage() {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[60vh]">
-        <Loader2 className="animate-spin text-teal-600 h-8 w-8" />
+        <Loader2 className="animate-spin text-purple-600 h-8 w-8" />
       </div>
     );
   }
@@ -127,7 +127,7 @@ export default function VideoCallPage() {
       {/* Header */}
       <div className="text-center space-y-2">
         <div className="flex items-center justify-center gap-3">
-          <Video className="h-8 w-8 text-teal-600" />
+          <Video className="h-8 w-8 text-purple-600" />
           <h1 className="text-3xl font-black text-slate-900">Video Calls</h1>
         </div>
         <p className="text-slate-600">
@@ -163,8 +163,8 @@ export default function VideoCallPage() {
                   {/* Left: Booking Info */}
                   <div className="flex-1 space-y-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-full bg-teal-100 flex items-center justify-center">
-                        <User className="h-6 w-6 text-teal-600" />
+                      <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
+                        <User className="h-6 w-6 text-purple-600" />
                       </div>
                       <div>
                         <h3 className="font-bold text-slate-900">
@@ -178,11 +178,11 @@ export default function VideoCallPage() {
 
                     <div className="flex flex-wrap gap-4 text-sm text-slate-600">
                       <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-teal-600" />
+                        <Calendar className="h-4 w-4 text-purple-600" />
                         <span>{formatDate(booking.startTime)}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-teal-600" />
+                        <Clock className="h-4 w-4 text-purple-600" />
                         <span>
                           {Math.round(
                             (new Date(booking.endTime).getTime() -
@@ -209,7 +209,7 @@ export default function VideoCallPage() {
                     {booking.meetingLink && (
                       <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
                         <div className="flex items-center gap-2 mb-2">
-                          <Video className="h-4 w-4 text-teal-600" />
+                          <Video className="h-4 w-4 text-purple-600" />
                           <span className="text-xs font-bold text-slate-700 uppercase">
                             Meeting Link
                           </span>
@@ -232,7 +232,7 @@ export default function VideoCallPage() {
                             href={booking.meetingLink}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="p-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg transition-colors"
+                            className="p-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
                             title="Open meeting"
                           >
                             <ExternalLink className="h-4 w-4" />
@@ -248,7 +248,7 @@ export default function VideoCallPage() {
                       <button
                         onClick={() => createMeetingLink(booking.id)}
                         disabled={creatingLink === booking.id}
-                        className="px-6 py-3 bg-teal-600 text-white rounded-xl font-bold hover:bg-teal-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        className="px-6 py-3 bg-purple-600 text-white rounded-xl font-bold hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                       >
                         {creatingLink === booking.id ? (
                           <>
@@ -267,7 +267,7 @@ export default function VideoCallPage() {
                         href={booking.meetingLink}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="px-6 py-3 bg-teal-600 text-white rounded-xl font-bold hover:bg-teal-700 transition-colors flex items-center justify-center gap-2"
+                        className="px-6 py-3 bg-purple-600 text-white rounded-xl font-bold hover:bg-purple-700 transition-colors flex items-center justify-center gap-2"
                       >
                         <Video className="h-4 w-4" />
                         Join Meeting

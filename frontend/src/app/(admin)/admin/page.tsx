@@ -63,7 +63,7 @@ export default function AdminDashboard() {
   if (loading)
     return (
       <div className="flex justify-center items-center h-[80vh]">
-        <Loader2 className="animate-spin text-teal-600 h-10 w-10" />
+        <Loader2 className="animate-spin text-purple-600 h-10 w-10" />
       </div>
     );
 
@@ -86,7 +86,7 @@ export default function AdminDashboard() {
       title: "Active Bookings",
       value: data?.stats.activeBookings || 0,
       icon: Calendar,
-      color: "bg-teal-500",
+      color: "bg-purple-500",
       trend: "Currently Running",
     },
     {
@@ -109,7 +109,7 @@ export default function AdminDashboard() {
           >
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-sm font-medium text-slate-500 group-hover:text-teal-600 transition-colors">
+                <p className="text-sm font-medium text-slate-500 group-hover:text-purple-600 transition-colors">
                   {stat.title}
                 </p>
                 <h3 className="text-3xl font-bold text-slate-800 mt-2">
@@ -143,7 +143,7 @@ export default function AdminDashboard() {
             </div>
             <Link
               href="/admin/approvals"
-              className="text-sm text-teal-600 font-bold hover:bg-teal-50 px-3 py-1.5 rounded-lg transition-colors"
+              className="text-sm text-purple-600 font-bold hover:bg-purple-50 px-3 py-1.5 rounded-lg transition-colors"
             >
               View All
             </Link>
@@ -188,7 +188,7 @@ export default function AdminDashboard() {
                       <td className="px-6 py-4 text-right">
                         <Link
                           href={`/admin/approvals?id=${user.id}`}
-                          className="inline-flex items-center gap-1 text-teal-600 font-bold hover:underline bg-teal-50 px-3 py-1 rounded-md text-xs"
+                          className="inline-flex items-center gap-1 text-purple-600 font-bold hover:underline bg-purple-50 px-3 py-1 rounded-md text-xs"
                         >
                           <Eye className="h-3 w-3" /> Review
                         </Link>
@@ -220,7 +220,7 @@ export default function AdminDashboard() {
                   className="flex gap-4 items-start relative pl-4 border-l-2 border-slate-100 pb-1 last:pb-0"
                 >
                   {/* Timeline Dot */}
-                  <div className="absolute -left-[5px] top-1 w-2.5 h-2.5 bg-teal-500 rounded-full border-2 border-white"></div>
+                  <div className="absolute -left-[5px] top-1 w-2.5 h-2.5 bg-purple-500 rounded-full border-2 border-white"></div>
 
                   <div>
                     <p className="text-sm text-slate-800 leading-snug">
@@ -228,7 +228,7 @@ export default function AdminDashboard() {
                         {booking.parent.user.name}
                       </span>{" "}
                       booked{" "}
-                      <span className="font-bold text-teal-600">
+                      <span className="font-bold text-purple-600">
                         {booking.babysitter.user.name}
                       </span>
                     </p>

@@ -56,7 +56,7 @@ export const chatWithBot = async (req: AuthRequest, res: Response): Promise<void
             {
               role: "system",
               content:
-                "You are a helpful assistant for a babysitting platform. Help users with bookings, payments, profiles, finding sitters, and general questions. Be friendly and concise.",
+                "You are a helpful assistant for CareConnect, a premium babysitting and childcare platform. Help users with bookings, payments, profiles, finding sitters, and general questions. Be friendly and concise.",
             },
             { role: "user", content: message },
           ],

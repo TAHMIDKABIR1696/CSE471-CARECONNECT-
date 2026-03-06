@@ -1,155 +1,169 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, HeartHandshake, Loader2 } from "lucide-react";
-import { useAuth } from "@/hooks/use-auth"; // আপনার হুক ইম্পোর্ট
+import { Menu, X, Loader2 } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
 import UserNav from "./user-nav";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
 
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
+  const isBabysitter = isAuthenticated && user?.role === "BABYSITTER";
 
-  // Mobile menu close on route change
+  const navLinks = useMemo(() => {
+    if (isAuthenticated) {
+      const links = [
+        { name: "Home", href: "/" },
+        { name: "Find a Sitter", href: "/account/find-sitter" },
+      ];
+      if (isBabysitter) {
+        links.push({ name: "Find Jobs", href: "/account/bookings" });
+      }
+      links.push({ name: "Pricing", href: "/pricing" });
+      return links;
+    }
+    return [
+      { name: "Home", href: "/" },
+      { name: "Find a Sitter", href: "/account/find-sitter" },
+      { name: "Become a Sitter", href: "/apply" },
+      { name: "Pricing", href: "/pricing" },
+    ];
+  }, [isAuthenticated, isBabysitter]);
+
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsOpen(false);
-    }, 0);
+    const handleScroll = () => setIsScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
+  useEffect(() => {
+    const timer = setTimeout(() => setIsOpen(false), 0);
     return () => clearTimeout(timer);
   }, [pathname]);
 
   return (
-    <nav className="fixed w-full z-40 bg-white/80 backdrop-blur-xl border-b border-slate-100 transition-all duration-300">
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-20 items-center">
-          {/* Logo Area */}
-          <Link
-            href="/"
-            className="flex-shrink-0 flex items-center gap-2.5 group"
-          >
-            <div className="bg-gradient-to-tr from-teal-600 to-teal-500 p-2.5 rounded-xl shadow-lg shadow-teal-200 group-hover:shadow-teal-300 transition-all duration-300">
-              <HeartHandshake className="h-6 w-6 text-white" />
+    <nav
+      className={`fixed w-full z-40 transition-all duration-500 ${
+        isScrolled
+          ? "bg-white/90 backdrop-blur-md shadow-sm py-2"
+          : "bg-transparent py-4"
+      }`}
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center">
+          {/* Logo */}
+          <Link href="/" className="flex items-center space-x-2">
+            <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-blue-500 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-xl">C</span>
             </div>
-            <span className="font-bold text-2xl text-slate-800 tracking-tight">
-              Care<span className="text-teal-600">Connect</span>
+            <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-500 bg-clip-text text-transparent">
+              CareConnect
             </span>
           </Link>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex space-x-1 items-center bg-slate-50/50 p-1.5 rounded-full border border-slate-100">
-            {[
-              { name: "Find a Sitter", href: "/" },
-              { name: "Find Jobs", href: "/jobs" },
-              { name: "How it Works", href: "/how-it-works" },
-            ].map((link) => (
-              <Link
-                key={link.name}
-                href={link.href}
-                className={`px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${
-                  pathname === link.href
-                    ? "bg-white text-teal-700 shadow-sm"
-                    : "text-slate-500 hover:text-slate-900 hover:bg-white/50"
-                }`}
-              >
-                {link.name}
-              </Link>
+          <ul className="hidden md:flex space-x-8">
+            {navLinks.map((link) => (
+              <li key={link.name}>
+                <Link
+                  href={link.href}
+                  className={`transition-colors ${
+                    pathname === link.href
+                      ? "text-purple-600 font-semibold"
+                      : "text-gray-700 hover:text-purple-600"
+                  }`}
+                >
+                  {link.name}
+                </Link>
+              </li>
             ))}
-          </div>
+          </ul>
 
-          {/* Right Side Logic */}
-          <div className="hidden md:flex items-center gap-4">
-            {/* 🛠️ লোডিং অবস্থায় স্পিনার দেখাবে, তাই কোনো ফ্লিকারিং হবে না */}
+          <div className="hidden md:flex items-center space-x-4">
             {isLoading ? (
-              <Loader2 className="h-5 w-5 animate-spin text-slate-400" />
+              <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
             ) : isAuthenticated ? (
               <UserNav />
             ) : (
-              <div className="flex items-center gap-3">
+              <>
                 <Link
                   href="/login"
-                  className="text-slate-600 font-bold text-sm hover:text-teal-600 px-4 py-2 transition-colors"
+                  className="text-gray-700 hover:text-purple-600 transition-colors"
                 >
-                  Log In
+                  Sign In
                 </Link>
                 <Link
                   href="/signup"
-                  className="bg-slate-900 hover:bg-teal-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5"
+                  className="bg-gradient-to-r from-purple-600 to-blue-500 text-white px-6 py-2 rounded-lg hover:shadow-lg transition-all"
                 >
-                  Sign Up Free
+                  Get Started
                 </Link>
-              </div>
+              </>
             )}
           </div>
 
-          {/* Mobile Menu Toggle */}
-          <div className="md:hidden flex items-center gap-4">
-            {/* মোবাইলেও লোডিং চেক করুন */}
+          {/* Mobile Menu Button */}
+          <div className="md:hidden flex items-center gap-3">
             {!isLoading && isAuthenticated && <UserNav />}
-
             <button
+              className="text-gray-700"
               onClick={() => setIsOpen(!isOpen)}
-              className="text-slate-600 hover:text-teal-600 transition-colors p-2 bg-slate-50 rounded-lg"
+              aria-label="Toggle menu"
             >
-              {isOpen ? (
-                <X className="h-6 w-6" />
-              ) : (
-                <Menu className="h-6 w-6" />
-              )}
+              {isOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
           </div>
         </div>
-      </div>
 
-      {/* Mobile Menu Dropdown */}
-      <div
-        className={`md:hidden absolute w-full bg-white border-b border-slate-100 shadow-xl transition-all duration-300 ease-in-out origin-top ${
-          isOpen
-            ? "opacity-100 scale-y-100 max-h-[400px]"
-            : "opacity-0 scale-y-0 max-h-0 overflow-hidden"
-        }`}
-      >
-        <div className="px-4 pt-4 pb-6 space-y-2">
-          <Link
-            href="/"
-            className="block px-4 py-3 text-slate-700 font-semibold hover:bg-teal-50 rounded-xl"
-          >
-            Find a Sitter
-          </Link>
-          <Link
-            href="/jobs"
-            className="block px-4 py-3 text-slate-700 font-semibold hover:bg-teal-50 rounded-xl"
-          >
-            Find Jobs
-          </Link>
-          <Link
-            href="/how-it-works"
-            className="block px-4 py-3 text-slate-700 font-semibold hover:bg-teal-50 rounded-xl"
-          >
-            How it Works
-          </Link>
-
-          {/* Auth Check for Mobile */}
-          {!isLoading && !isAuthenticated && (
-            <div className="pt-4 mt-2 border-t border-slate-100 flex flex-col gap-3">
-              <Link
-                href="/login"
-                className="block w-full text-center px-4 py-3 rounded-xl border border-slate-200 text-slate-700 font-bold hover:bg-slate-50"
-              >
-                Log In
-              </Link>
-              <Link
-                href="/signup"
-                className="block w-full text-center px-4 py-3 rounded-xl bg-teal-600 text-white font-bold hover:bg-teal-700"
-              >
-                Sign Up Free
-              </Link>
-            </div>
-          )}
-        </div>
+        {/* Mobile Menu */}
+        {isOpen && (
+          <div className="md:hidden mt-4 pb-4">
+            <ul className="space-y-3">
+              {navLinks.map((link) => (
+                <li key={link.name}>
+                  <Link
+                    href={link.href}
+                    className={`block py-2 ${
+                      pathname === link.href
+                        ? "text-purple-600 font-semibold"
+                        : "text-gray-700"
+                    }`}
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+              {!isLoading && !isAuthenticated && (
+                <>
+                  <li>
+                    <Link
+                      href="/login"
+                      className="block py-2 text-gray-700"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      Sign In
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href="/signup"
+                      className="block bg-gradient-to-r from-purple-600 to-blue-500 text-white px-6 py-2 rounded-lg text-center"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      Get Started
+                    </Link>
+                  </li>
+                </>
+              )}
+            </ul>
+          </div>
+        )}
       </div>
     </nav>
   );

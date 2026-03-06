@@ -186,7 +186,7 @@ function PaymentForm({
       <button
         type="submit"
         disabled={loading || !stripe || !clientSecret}
-        className="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-4 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
       >
         {loading ? (
           <>
@@ -220,7 +220,7 @@ export default function StripePaymentModal({
         <AlertDialogHeader>
           <div className="flex items-center justify-between">
             <AlertDialogTitle className="flex items-center gap-2">
-              <CreditCard className="h-5 w-5 text-teal-600" />
+              <CreditCard className="h-5 w-5 text-purple-600" />
               Secure Payment
             </AlertDialogTitle>
             <button

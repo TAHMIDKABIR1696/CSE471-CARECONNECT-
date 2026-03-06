@@ -264,7 +264,7 @@ export default function MessagesPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="animate-spin h-8 w-8 text-teal-600" />
+        <Loader2 className="animate-spin h-8 w-8 text-purple-600" />
       </div>
     );
   }
@@ -274,12 +274,12 @@ export default function MessagesPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-teal-600 to-slate-800 rounded-3xl p-8 text-white shadow-lg">
+      <div className="bg-gradient-to-r from-purple-600 to-slate-800 rounded-3xl p-8 text-white shadow-lg">
         <h1 className="text-3xl font-bold flex items-center gap-3">
           <MessageSquare className="h-8 w-8" />
           Messages
         </h1>
-        <p className="text-teal-100 mt-2">
+        <p className="text-purple-100 mt-2">
           Communicate with {isParent ? "babysitters" : "parents"} about bookings
         </p>
       </div>
@@ -302,7 +302,7 @@ export default function MessagesPage() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search conversations..."
-                  className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none"
+                  className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none"
                 />
               </div>
             </div>
@@ -331,12 +331,12 @@ export default function MessagesPage() {
                         setShowMobileChat(true);
                       }}
                       className={`p-4 border-b border-slate-100 cursor-pointer hover:bg-slate-50 transition-colors ${
-                        isSelected ? "bg-teal-50 border-l-4 border-l-teal-600" : ""
+                        isSelected ? "bg-purple-50 border-l-4 border-l-purple-600" : ""
                       }`}
                     >
                       <div className="flex items-start gap-3">
-                        <div className="bg-teal-100 p-2 rounded-lg">
-                          <User className="h-5 w-5 text-teal-600" />
+                        <div className="bg-purple-100 p-2 rounded-lg">
+                          <User className="h-5 w-5 text-purple-600" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between mb-1">
@@ -394,8 +394,8 @@ export default function MessagesPage() {
                     >
                       <ChevronLeft className="h-5 w-5 text-slate-600" />
                     </button>
-                    <div className="bg-teal-100 p-2 rounded-lg">
-                      <User className="h-5 w-5 text-teal-600" />
+                    <div className="bg-purple-100 p-2 rounded-lg">
+                      <User className="h-5 w-5 text-purple-600" />
                     </div>
                     <div>
                       <h3 className="font-bold text-slate-900">
@@ -413,7 +413,7 @@ export default function MessagesPage() {
                     <select
                       value={targetLanguage}
                       onChange={(e) => handleLanguageChange(e.target.value)}
-                      className="px-3 py-1.5 text-xs font-bold border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none flex items-center gap-2"
+                      className="px-3 py-1.5 text-xs font-bold border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none flex items-center gap-2"
                     >
                       <option value="en">🇺🇸 English</option>
                       <option value="bn">🇧🇩 বাংলা</option>
@@ -450,7 +450,7 @@ export default function MessagesPage() {
                           }`}
                         >
                           {!isOwnMessage && (
-                            <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center shrink-0">
+                            <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center shrink-0">
                               {message.sender.profilePicture ? (
                                 <img
                                   src={message.sender.profilePicture}
@@ -458,7 +458,7 @@ export default function MessagesPage() {
                                   className="w-10 h-10 rounded-full object-cover"
                                 />
                               ) : (
-                                <span className="text-sm font-bold text-teal-600">
+                                <span className="text-sm font-bold text-purple-600">
                                   {message.sender.name.charAt(0)}
                                 </span>
                               )}
@@ -467,7 +467,7 @@ export default function MessagesPage() {
                           <div
                             className={`max-w-[70%] rounded-2xl px-4 py-2 ${
                               isOwnMessage
-                                ? "bg-teal-600 text-white"
+                                ? "bg-purple-600 text-white"
                                 : isBot
                                   ? "bg-slate-100 text-slate-900"
                                   : "bg-slate-100 text-slate-900"
@@ -478,7 +478,7 @@ export default function MessagesPage() {
                             </p>
                             <div
                               className={`flex items-center gap-2 mt-1 ${
-                                isOwnMessage ? "text-teal-50" : "text-slate-400"
+                                isOwnMessage ? "text-purple-50" : "text-slate-400"
                               }`}
                             >
                               <span className="text-xs">
@@ -533,13 +533,13 @@ export default function MessagesPage() {
                         }
                       }}
                       placeholder="Type a message..."
-                      className="flex-1 px-4 py-2 bg-white border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none"
+                      className="flex-1 px-4 py-2 bg-white border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none"
                       disabled={sending}
                     />
                     <button
                       type="submit"
                       disabled={sending || !newMessage.trim()}
-                      className="px-6 py-2 bg-teal-600 text-white rounded-xl font-bold hover:bg-teal-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                      className="px-6 py-2 bg-purple-600 text-white rounded-xl font-bold hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                     >
                       {sending ? (
                         <Loader2 className="animate-spin h-4 w-4" />

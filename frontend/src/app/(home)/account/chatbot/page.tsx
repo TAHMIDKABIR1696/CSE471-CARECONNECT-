@@ -117,7 +117,7 @@ export default function ChatbotPage() {
       {/* Header */}
       <div className="text-center space-y-2">
         <div className="flex items-center justify-center gap-3">
-          <Sparkles className="h-8 w-8 text-teal-600" />
+          <Sparkles className="h-8 w-8 text-purple-600" />
           <h1 className="text-3xl font-black text-slate-900">AI Chatbot</h1>
         </div>
         <p className="text-slate-600">
@@ -148,14 +148,14 @@ export default function ChatbotPage() {
                 }`}
               >
                 {message.type === "BOT" && (
-                  <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center shrink-0">
-                    <Bot className="h-5 w-5 text-teal-600" />
+                  <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center shrink-0">
+                    <Bot className="h-5 w-5 text-purple-600" />
                   </div>
                 )}
                 <div
                   className={`max-w-[75%] rounded-2xl px-4 py-3 ${
                     message.type === "USER"
-                      ? "bg-teal-600 text-white"
+                      ? "bg-purple-600 text-white"
                       : "bg-slate-100 text-slate-900"
                   }`}
                 >
@@ -165,7 +165,7 @@ export default function ChatbotPage() {
                   <p
                     className={`text-xs mt-1 ${
                       message.type === "USER"
-                        ? "text-teal-50"
+                        ? "text-purple-50"
                         : "text-slate-400"
                     }`}
                   >
@@ -185,8 +185,8 @@ export default function ChatbotPage() {
           )}
           {loading && (
             <div className="flex gap-3 justify-start">
-              <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center shrink-0">
-                <Bot className="h-5 w-5 text-teal-600" />
+              <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center shrink-0">
+                <Bot className="h-5 w-5 text-purple-600" />
               </div>
               <div className="bg-slate-100 rounded-2xl px-4 py-3">
                 <Loader2 className="animate-spin h-4 w-4 text-slate-400" />
@@ -207,13 +207,13 @@ export default function ChatbotPage() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask me anything..."
-              className="flex-1 px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-teal-500"
+              className="flex-1 px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-purple-500"
               disabled={loading}
             />
             <button
               type="submit"
               disabled={loading || !input.trim()}
-              className="px-6 py-3 bg-teal-600 text-white rounded-xl font-bold hover:bg-teal-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-6 py-3 bg-purple-600 text-white rounded-xl font-bold hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {loading ? (
                 <Loader2 className="animate-spin h-4 w-4" />
@@ -240,7 +240,7 @@ export default function ChatbotPage() {
             <button
               key={suggestion}
               onClick={() => setInput(suggestion)}
-              className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs text-slate-700 hover:bg-teal-50 hover:border-teal-200 transition-colors"
+              className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs text-slate-700 hover:bg-purple-50 hover:border-purple-200 transition-colors"
             >
               {suggestion}
             </button>

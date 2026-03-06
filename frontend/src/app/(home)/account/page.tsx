@@ -61,7 +61,7 @@ export default function AccountOverviewPage() {
   if (loading || isLoading) {
     return (
       <div className="p-10 text-center">
-        <Loader2 className="animate-spin text-teal-600 h-8 w-8 mx-auto" />
+        <Loader2 className="animate-spin text-purple-600 h-8 w-8 mx-auto" />
         <p className="text-slate-500 mt-2">Loading dashboard...</p>
       </div>
     );
@@ -74,11 +74,11 @@ export default function AccountOverviewPage() {
   return (
     <div className="space-y-6">
       {/* Welcome Header */}
-      <div className="bg-gradient-to-r from-teal-600 to-slate-800 rounded-3xl p-8 text-white shadow-lg">
+      <div className="bg-gradient-to-r from-purple-600 to-slate-800 rounded-3xl p-8 text-white shadow-lg">
         <h1 className="text-3xl font-bold">
           Hello, {user?.name?.split(" ")[0]}! 👋
         </h1>
-        <p className="text-teal-100 mt-2">
+        <p className="text-purple-100 mt-2">
           Here is what's happening with your account today.
         </p>
       </div>
@@ -90,8 +90,8 @@ export default function AccountOverviewPage() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
               <div className="flex items-center gap-4">
-                <div className="bg-teal-50 p-3 rounded-xl">
-                  <Calendar className="h-6 w-6 text-teal-600" />
+                <div className="bg-purple-50 p-3 rounded-xl">
+                  <Calendar className="h-6 w-6 text-purple-600" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-slate-800">12</p>
@@ -139,8 +139,8 @@ export default function AccountOverviewPage() {
             <div className="space-y-4">
               {/* Activity Item 1 */}
               <div className="flex gap-4 p-4 rounded-xl hover:bg-slate-50 transition border border-transparent hover:border-slate-100">
-                <div className="bg-teal-100 p-2.5 rounded-lg h-fit">
-                  <Calendar className="h-5 w-5 text-teal-700" />
+                <div className="bg-purple-100 p-2.5 rounded-lg h-fit">
+                  <Calendar className="h-5 w-5 text-purple-700" />
                 </div>
                 <div>
                   <h4 className="font-bold text-slate-800 text-sm">
@@ -204,15 +204,15 @@ export default function AccountOverviewPage() {
 
               <div className="text-left space-y-3 pt-4 border-t border-slate-50 text-sm text-slate-600">
                 <div className="flex items-center gap-3">
-                  <Mail className="h-4 w-4 text-teal-500" />{" "}
+                  <Mail className="h-4 w-4 text-purple-500" />{" "}
                   <span className="truncate">{user?.email}</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <Phone className="h-4 w-4 text-teal-500" />{" "}
+                  <Phone className="h-4 w-4 text-purple-500" />{" "}
                   <span>{user?.phoneNumber || "N/A"}</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <MapPin className="h-4 w-4 text-teal-500" />{" "}
+                  <MapPin className="h-4 w-4 text-purple-500" />{" "}
                   <span>Dhaka, Bangladesh</span>
                 </div>
               </div>

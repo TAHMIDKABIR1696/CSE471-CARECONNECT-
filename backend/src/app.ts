@@ -4,6 +4,9 @@ import helmet from "helmet";
 import path from "path";
 import { fileURLToPath } from "url";
 import prisma from "./config/db.js";
+import { requestId } from "./middleware/requestId.js";
+import { sanitizeInputs } from "./middleware/sanitizer.js";
+import { apiLimiter, authLimiter, sensitiveLimiter } from "./middleware/rateLimiter.js";
 import {
   globalErrorHandler,
   notFoundHandler,
@@ -86,10 +89,15 @@ app.use(
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
+// --- Request Tracing & Sanitization ---
+app.use(requestId);
+app.use(sanitizeInputs);
+app.use(apiLimiter);
+
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 // --- Route Mounting ---
-app.use("/api/auth", authRoutes);
+app.use("/api/auth", authLimiter, authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/children", childRoutes);
 app.use("/api/sitters", sitterRoutes);
@@ -105,14 +113,14 @@ app.use("/api/chatbot", chatbotRoutes);
 app.use("/api/activities", activityRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/video", videoRoutes);
-app.use("/api/stripe", stripeRoutes);
+app.use("/api/stripe", sensitiveLimiter, stripeRoutes);
 
 // --- Health Check ---
 app.get("/", (_req: Request, res: Response) => {
   res.json({
     success: true,
     message: "CareConnect API is running successfully! 🚀",
-    version: "1.0.0",
+    version: "2.0.0",
     environment: process.env.NODE_ENV || "development",
   });
 });
@@ -127,7 +135,7 @@ app.use(globalErrorHandler);
 const connectDB = async (): Promise<void> => {
   try {
     await prisma.$connect();
-    console.log("✅ Database connected successfully to 'new-care'");
+    console.log("✅ Database connected successfully");
   } catch (error) {
     console.error("❌ Database connection failed:", error);
     process.exit(1);

@@ -1,149 +1,120 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
-import {
-  Facebook,
-  Twitter,
-  Instagram,
-  HeartHandshake,
-  Mail,
-  MapPin,
-} from "lucide-react";
+import { Facebook, Twitter, Instagram, Linkedin, Mail, Phone, MapPin } from "lucide-react";
 
 const Footer = () => {
+  const currentYear = new Date().getFullYear();
+
   return (
     <footer className="bg-slate-900 text-slate-300 pt-16 pb-8">
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
-          {/* Brand Column */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+          {/* Brand Section */}
           <div>
-            <div className="flex items-center gap-2 mb-6">
-              <HeartHandshake className="h-6 w-6 text-teal-500" />
-              <span className="font-bold text-2xl text-white tracking-tight">
-                Care<span className="text-teal-500">Connect</span>
-              </span>
+            <div className="flex items-center space-x-2 mb-4">
+              <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-blue-500 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-xl">C</span>
+              </div>
+              <span className="text-2xl font-bold text-white">CareConnect</span>
             </div>
-            <p className="text-slate-400 text-sm leading-relaxed mb-6">
-              Making parenting easier by connecting families with trusted,
-              background-checked babysitters through intelligent matching.
+            <p className="text-sm mb-4">
+              Personalized childcare and sitter services connecting families with
+              trusted caregivers.
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="hover:text-teal-400 transition">
-                <Facebook className="h-5 w-5" />
+              <a href="#" className="hover:text-purple-400 transition-colors">
+                <Facebook size={20} />
               </a>
-              <a href="#" className="hover:text-teal-400 transition">
-                <Twitter className="h-5 w-5" />
+              <a href="#" className="hover:text-purple-400 transition-colors">
+                <Twitter size={20} />
               </a>
-              <a href="#" className="hover:text-teal-400 transition">
-                <Instagram className="h-5 w-5" />
+              <a href="#" className="hover:text-purple-400 transition-colors">
+                <Instagram size={20} />
+              </a>
+              <a href="#" className="hover:text-purple-400 transition-colors">
+                <Linkedin size={20} />
               </a>
             </div>
           </div>
 
-          {/* Quick Links: Parents */}
+          {/* Quick Links */}
           <div>
-            <h3 className="text-white font-semibold text-lg mb-6">
-              For Parents
-            </h3>
-            <ul className="space-y-4">
+            <h3 className="text-white font-semibold mb-4">Quick Links</h3>
+            <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/search" className="hover:text-teal-400 transition">
+                <Link href="/" className="hover:text-purple-400 transition-colors">
+                  Home
+                </Link>
+              </li>
+              <li>
+                <Link href="/account/find-sitter" className="hover:text-purple-400 transition-colors">
                   Find a Sitter
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/pricing"
-                  className="hover:text-teal-400 transition"
-                >
-                  Pricing & Plans
+                <Link href="/apply" className="hover:text-purple-400 transition-colors">
+                  Become a Sitter
                 </Link>
               </li>
               <li>
-                <Link href="/safety" className="hover:text-teal-400 transition">
-                  Safety Standards
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/success-stories"
-                  className="hover:text-teal-400 transition"
-                >
-                  Success Stories
+                <Link href="/pricing" className="hover:text-purple-400 transition-colors">
+                  Pricing
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Quick Links: Sitters */}
+          {/* Support */}
           <div>
-            <h3 className="text-white font-semibold text-lg mb-6">
-              For Sitters
-            </h3>
-            <ul className="space-y-4">
+            <h3 className="text-white font-semibold mb-4">Support</h3>
+            <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/apply" className="hover:text-teal-400 transition">
-                  Apply for Jobs
-                </Link>
+                <a href="#" className="hover:text-purple-400 transition-colors">
+                  Help Center
+                </a>
               </li>
               <li>
-                <Link
-                  href="/safety-check"
-                  className="hover:text-teal-400 transition"
-                >
-                  Background Check
-                </Link>
+                <a href="#" className="hover:text-purple-400 transition-colors">
+                  Safety
+                </a>
               </li>
               <li>
-                <Link
-                  href="/resources"
-                  className="hover:text-teal-400 transition"
-                >
-                  Sitter Resources
-                </Link>
+                <a href="#" className="hover:text-purple-400 transition-colors">
+                  Terms of Service
+                </a>
               </li>
               <li>
-                <Link
-                  href="/community"
-                  className="hover:text-teal-400 transition"
-                >
-                  Community
-                </Link>
+                <a href="#" className="hover:text-purple-400 transition-colors">
+                  Privacy Policy
+                </a>
               </li>
             </ul>
           </div>
 
           {/* Contact */}
           <div>
-            <h3 className="text-white font-semibold text-lg mb-6">
-              Contact Us
-            </h3>
-            <ul className="space-y-4">
-              <li className="flex items-start gap-3">
-                <MapPin className="h-5 w-5 text-teal-500 mt-1" />
-                <span>
-                  123 Innovation Drive,
-                  <br />
-                  Tech City, TC 9000
-                </span>
+            <h3 className="text-white font-semibold mb-4">Contact Us</h3>
+            <ul className="space-y-3 text-sm">
+              <li className="flex items-start space-x-2">
+                <MapPin size={16} className="mt-1 flex-shrink-0" />
+                <span>123 Care Street, Suite 100, New York, NY 10001</span>
               </li>
-              <li className="flex items-center gap-3">
-                <Mail className="h-5 w-5 text-teal-500" />
-                <a
-                  href="mailto:support@careconnect.com"
-                  className="hover:text-white"
-                >
-                  support@careconnect.com
-                </a>
+              <li className="flex items-center space-x-2">
+                <Phone size={16} className="flex-shrink-0" />
+                <span>(555) 123-4567</span>
+              </li>
+              <li className="flex items-center space-x-2">
+                <Mail size={16} className="flex-shrink-0" />
+                <span>support@careconnect.com</span>
               </li>
             </ul>
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="border-t border-slate-800 pt-8 text-center text-sm text-slate-500">
-          <p>
-            &copy; {new Date().getFullYear()} CareConnect. All rights reserved.
-          </p>
+        <div className="border-t border-slate-800 pt-8 text-center text-sm">
+          <p>&copy; {currentYear} CareConnect. All rights reserved.</p>
         </div>
       </div>
     </footer>

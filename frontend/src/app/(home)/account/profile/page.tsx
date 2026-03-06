@@ -47,7 +47,7 @@ export default function ProfileViewPage() {
   if (loading)
     return (
       <div className="flex justify-center p-20">
-        <Loader2 className="animate-spin text-teal-600" />
+        <Loader2 className="animate-spin text-purple-600" />
       </div>
     );
   if (!profileData) return <div>Failed to load profile.</div>;
@@ -59,7 +59,7 @@ export default function ProfileViewPage() {
     <div className="max-w-4xl mx-auto space-y-8">
       {/* 1. Hero / Header Card */}
       <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden relative">
-        <div className="h-32 bg-gradient-to-r from-teal-600 to-slate-800"></div>
+        <div className="h-32 bg-gradient-to-r from-purple-600 to-slate-800"></div>
         <div className="px-8 pb-8">
           <div className="flex justify-between items-end -mt-12 mb-6">
             <div className="relative">
@@ -89,7 +89,7 @@ export default function ProfileViewPage() {
             <h1 className="text-3xl font-bold text-slate-900">
               {profileData.name}
             </h1>
-            <p className="text-teal-600 font-medium flex items-center gap-2 mt-1">
+            <p className="text-purple-600 font-medium flex items-center gap-2 mt-1">
               {profileData.role} Account
               <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
               <span className="text-slate-500 text-sm font-normal flex items-center gap-1">
@@ -111,15 +111,15 @@ export default function ProfileViewPage() {
             </h3>
             <div className="space-y-3">
               <div className="flex items-center gap-3 text-sm text-slate-600">
-                <Mail className="h-4 w-4 text-teal-500" />
+                <Mail className="h-4 w-4 text-purple-500" />
                 <span className="truncate">{profileData.email}</span>
               </div>
               <div className="flex items-center gap-3 text-sm text-slate-600">
-                <Phone className="h-4 w-4 text-teal-500" />
+                <Phone className="h-4 w-4 text-purple-500" />
                 <span>{profileData.phoneNumber || "Not provided"}</span>
               </div>
               <div className="flex items-center gap-3 text-sm text-slate-600">
-                <Calendar className="h-4 w-4 text-teal-500" />
+                <Calendar className="h-4 w-4 text-purple-500" />
                 <span>
                   Joined {new Date(profileData.createdAt).toLocaleDateString()}
                 </span>
@@ -128,15 +128,15 @@ export default function ProfileViewPage() {
           </div>
 
           {/* Stats (Optional) */}
-          <div className="bg-teal-50 p-6 rounded-2xl border border-teal-100">
+          <div className="bg-purple-50 p-6 rounded-2xl border border-purple-100">
             <div className="flex items-center gap-2 mb-2">
-              <Star className="h-5 w-5 text-teal-600" />
-              <span className="font-bold text-teal-800">Rating</span>
+              <Star className="h-5 w-5 text-purple-600" />
+              <span className="font-bold text-purple-800">Rating</span>
             </div>
-            <div className="text-3xl font-bold text-teal-900">
-              0.0 <span className="text-sm font-normal text-teal-600">/ 5</span>
+            <div className="text-3xl font-bold text-purple-900">
+              0.0 <span className="text-sm font-normal text-purple-600">/ 5</span>
             </div>
-            <p className="text-xs text-teal-600 mt-1">Based on 0 reviews</p>
+            <p className="text-xs text-purple-600 mt-1">Based on 0 reviews</p>
           </div>
         </div>
 

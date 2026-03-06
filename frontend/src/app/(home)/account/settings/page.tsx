@@ -147,7 +147,7 @@ export default function SettingsPage() {
   if (authLoading)
     return (
       <div className="flex flex-col items-center justify-center p-20 space-y-4">
-        <Loader2 className="animate-spin text-teal-600 h-10 w-10" />
+        <Loader2 className="animate-spin text-purple-600 h-10 w-10" />
         <p className="text-slate-500 font-medium">Loading settings...</p>
       </div>
     );
@@ -157,7 +157,7 @@ export default function SettingsPage() {
       {/* Page Title */}
       <div>
         <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-          <SettingsIcon className="h-6 w-6 text-teal-600" /> Account Settings
+          <SettingsIcon className="h-6 w-6 text-purple-600" /> Account Settings
         </h1>
         <p className="text-slate-500 mt-1">
           Update your personal and professional profile details.
@@ -169,7 +169,7 @@ export default function SettingsPage() {
           <h3 className="font-bold text-slate-700 flex items-center gap-2">
             <User className="h-4 w-4" /> Personal Information
           </h3>
-          <span className="text-xs font-bold px-3 py-1 bg-teal-100 text-teal-700 rounded-full uppercase tracking-wider">
+          <span className="text-xs font-bold px-3 py-1 bg-purple-100 text-purple-700 rounded-full uppercase tracking-wider">
             {user?.role} Mode
           </span>
         </div>
@@ -186,7 +186,7 @@ export default function SettingsPage() {
                 <input
                   {...register("name", { required: true })}
                   placeholder="Enter your name"
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 outline-none transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-500 outline-none transition-all"
                 />
               </div>
             </div>
@@ -200,7 +200,7 @@ export default function SettingsPage() {
                 <input
                   {...register("phone")}
                   placeholder="017xxxxxxxx"
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 outline-none transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-500 outline-none transition-all"
                 />
               </div>
             </div>
@@ -214,7 +214,7 @@ export default function SettingsPage() {
                 <input
                   {...register("location")}
                   placeholder="House, Road, Area, City"
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 outline-none transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-500 outline-none transition-all"
                 />
               </div>
             </div>
@@ -236,7 +236,7 @@ export default function SettingsPage() {
                   <input
                     type="number"
                     {...register("minBudget")}
-                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 outline-none"
+                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-500 outline-none"
                   />
                 </div>
                 <div className="space-y-2">
@@ -246,7 +246,7 @@ export default function SettingsPage() {
                   <input
                     type="number"
                     {...register("maxBudget")}
-                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 outline-none"
+                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-500 outline-none"
                   />
                 </div>
                 <div className="md:col-span-2 space-y-2">
@@ -257,7 +257,7 @@ export default function SettingsPage() {
                     {...register("situation")}
                     rows={3}
                     placeholder="Describe your children or any special needs..."
-                    className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:ring-2 focus:ring-teal-500 outline-none"
+                    className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:ring-2 focus:ring-purple-500 outline-none"
                   />
                 </div>
               </div>
@@ -276,7 +276,7 @@ export default function SettingsPage() {
                   <input
                     type="number"
                     {...register("experienceYears")}
-                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 outline-none"
+                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-500 outline-none"
                   />
                 </div>
                 <div className="space-y-2">
@@ -286,7 +286,7 @@ export default function SettingsPage() {
                   <input
                     type="number"
                     {...register("hourlyRate")}
-                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 outline-none"
+                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-purple-500 outline-none"
                   />
                 </div>
                 <div className="md:col-span-2 space-y-2">
@@ -297,18 +297,18 @@ export default function SettingsPage() {
                     {...register("bio")}
                     rows={4}
                     placeholder="Write a short professional bio..."
-                    className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:ring-2 focus:ring-teal-500 outline-none"
+                    className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:ring-2 focus:ring-purple-500 outline-none"
                   />
                 </div>
 
                 {/* GPS Location Capture Section */}
-                <div className="md:col-span-2 bg-teal-50/50 p-6 rounded-2xl border border-teal-100 space-y-4">
+                <div className="md:col-span-2 bg-purple-50/50 p-6 rounded-2xl border border-purple-100 space-y-4">
                   <div className="flex justify-between items-center">
                     <div>
-                      <h4 className="font-bold text-teal-900 text-sm">
+                      <h4 className="font-bold text-purple-900 text-sm">
                         GPS Tracking
                       </h4>
-                      <p className="text-xs text-teal-600">
+                      <p className="text-xs text-purple-600">
                         Ensure parents find you based on your live location.
                       </p>
                     </div>
@@ -316,7 +316,7 @@ export default function SettingsPage() {
                       type="button"
                       onClick={handleGetLocation}
                       disabled={isLocating}
-                      className="flex items-center gap-2 bg-teal-600 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-teal-700 transition-all shadow-md shadow-teal-100"
+                      className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-purple-700 transition-all shadow-md shadow-purple-100"
                     >
                       {isLocating ? (
                         <Loader2 className="animate-spin h-3.5 w-3.5" />
@@ -329,23 +329,23 @@ export default function SettingsPage() {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1">
-                      <label className="text-[10px] font-bold text-teal-700 uppercase">
+                      <label className="text-[10px] font-bold text-purple-700 uppercase">
                         Latitude
                       </label>
                       <input
                         {...register("latitude")}
                         readOnly
-                        className="w-full bg-white border border-teal-100 p-2 rounded-lg text-xs text-slate-600 outline-none"
+                        className="w-full bg-white border border-purple-100 p-2 rounded-lg text-xs text-slate-600 outline-none"
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[10px] font-bold text-teal-700 uppercase">
+                      <label className="text-[10px] font-bold text-purple-700 uppercase">
                         Longitude
                       </label>
                       <input
                         {...register("longitude")}
                         readOnly
-                        className="w-full bg-white border border-teal-100 p-2 rounded-lg text-xs text-slate-600 outline-none"
+                        className="w-full bg-white border border-purple-100 p-2 rounded-lg text-xs text-slate-600 outline-none"
                       />
                     </div>
                   </div>
@@ -362,7 +362,7 @@ export default function SettingsPage() {
             <button
               type="submit"
               disabled={isSaving}
-              className="flex items-center gap-2 bg-slate-900 hover:bg-teal-600 text-white px-10 py-3.5 rounded-2xl font-bold transition-all shadow-lg shadow-slate-200 disabled:opacity-70"
+              className="flex items-center gap-2 bg-slate-900 hover:bg-purple-600 text-white px-10 py-3.5 rounded-2xl font-bold transition-all shadow-lg shadow-slate-200 disabled:opacity-70"
             >
               {isSaving ? (
                 <Loader2 className="animate-spin h-5 w-5" />

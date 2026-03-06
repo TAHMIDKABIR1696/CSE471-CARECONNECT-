@@ -119,7 +119,7 @@ export default function ChatWindow({
   if (loading) {
     return (
       <div className="flex justify-center items-center h-96">
-        <Loader2 className="animate-spin text-teal-600 h-8 w-8" />
+        <Loader2 className="animate-spin text-purple-600 h-8 w-8" />
       </div>
     );
   }
@@ -168,14 +168,14 @@ export default function ChatWindow({
                 className={`flex gap-3 ${isOwnMessage ? "justify-end" : "justify-start"}`}
               >
                 {!isOwnMessage && (
-                  <div className="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center text-sm font-bold text-teal-600 shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-sm font-bold text-purple-600 shrink-0">
                     {message.sender.name.charAt(0)}
                   </div>
                 )}
                 <div
                   className={`max-w-[70%] rounded-2xl px-4 py-2 ${
                     isOwnMessage
-                      ? "bg-teal-600 text-white"
+                      ? "bg-purple-600 text-white"
                       : isBot
                         ? "bg-slate-100 text-slate-900"
                         : "bg-slate-100 text-slate-900"
@@ -184,7 +184,7 @@ export default function ChatWindow({
                   <p className="text-sm">{message.content}</p>
                   <p
                     className={`text-xs mt-1 ${
-                      isOwnMessage ? "text-teal-50" : "text-slate-400"
+                      isOwnMessage ? "text-purple-50" : "text-slate-400"
                     }`}
                   >
                     {new Date(message.createdAt).toLocaleTimeString([], {
@@ -216,13 +216,13 @@ export default function ChatWindow({
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Type a message..."
-            className="flex-1 px-4 py-2 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-teal-500"
+            className="flex-1 px-4 py-2 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-purple-500"
             disabled={sending}
           />
           <button
             type="submit"
             disabled={sending || !newMessage.trim()}
-            className="px-6 py-2 bg-teal-600 text-white rounded-xl font-bold hover:bg-teal-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="px-6 py-2 bg-purple-600 text-white rounded-xl font-bold hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             {sending ? (
               <Loader2 className="animate-spin h-4 w-4" />

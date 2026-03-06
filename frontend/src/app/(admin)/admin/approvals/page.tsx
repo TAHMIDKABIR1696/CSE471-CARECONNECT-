@@ -26,7 +26,7 @@ export default function ApprovalsListPage() {
   if (loading)
     return (
       <div className="flex justify-center p-20">
-        <Loader2 className="animate-spin text-teal-600 h-8 w-8" />
+        <Loader2 className="animate-spin text-purple-600 h-8 w-8" />
       </div>
     );
 
@@ -86,7 +86,7 @@ export default function ApprovalsListPage() {
                   <td className="px-6 py-4 text-right">
                     <Link
                       href={`/admin/approvals/${user.id}`} // 👈 Dynamic Link
-                      className="inline-flex items-center gap-2 bg-teal-50 text-teal-700 px-4 py-2 rounded-lg text-xs font-bold hover:bg-teal-100 transition-colors"
+                      className="inline-flex items-center gap-2 bg-purple-50 text-purple-700 px-4 py-2 rounded-lg text-xs font-bold hover:bg-purple-100 transition-colors"
                     >
                       <Eye className="h-3.5 w-3.5" /> Review Details
                     </Link>

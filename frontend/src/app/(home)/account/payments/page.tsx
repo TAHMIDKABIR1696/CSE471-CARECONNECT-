@@ -133,7 +133,7 @@ export default function PaymentsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="animate-spin h-8 w-8 text-teal-600" />
+        <Loader2 className="animate-spin h-8 w-8 text-purple-600" />
       </div>
     );
   }
@@ -143,12 +143,12 @@ export default function PaymentsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-teal-600 to-slate-800 rounded-3xl p-8 text-white shadow-lg">
+      <div className="bg-gradient-to-r from-purple-600 to-slate-800 rounded-3xl p-8 text-white shadow-lg">
         <h1 className="text-3xl font-bold flex items-center gap-3">
           <CreditCard className="h-8 w-8" />
           Payment History
         </h1>
-        <p className="text-teal-100 mt-2">
+        <p className="text-purple-100 mt-2">
           Track all your payment transactions and receipts
         </p>
       </div>
@@ -157,8 +157,8 @@ export default function PaymentsPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
           <div className="flex items-center gap-4">
-            <div className="bg-teal-50 p-3 rounded-xl">
-              <CreditCard className="h-6 w-6 text-teal-600" />
+            <div className="bg-purple-50 p-3 rounded-xl">
+              <CreditCard className="h-6 w-6 text-purple-600" />
             </div>
             <div>
               <p className="text-2xl font-bold text-slate-800">{payments.length}</p>
@@ -211,7 +211,7 @@ export default function PaymentsPage() {
               onClick={() => setFilter(status)}
               className={`px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap transition-colors ${
                 filter === status
-                  ? "bg-teal-600 text-white"
+                  ? "bg-purple-600 text-white"
                   : "bg-slate-100 text-slate-600 hover:bg-slate-200"
               }`}
             >
@@ -303,7 +303,7 @@ export default function PaymentsPage() {
                           // TODO: Generate and download receipt
                           toast.success("Receipt download feature coming soon!");
                         }}
-                        className="px-4 py-2 text-sm font-bold text-teal-600 bg-teal-50 hover:bg-teal-100 rounded-lg transition-colors flex items-center gap-2"
+                        className="px-4 py-2 text-sm font-bold text-purple-600 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors flex items-center gap-2"
                       >
                         <Download className="h-4 w-4" />
                         Receipt

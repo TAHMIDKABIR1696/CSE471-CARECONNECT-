@@ -31,7 +31,7 @@ export default function UserNav() {
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-2 p-1 pl-2 pr-3 rounded-full border border-slate-200 hover:shadow-md transition-all duration-200 group bg-white"
       >
-        <div className="h-8 w-8 rounded-full bg-teal-100 flex items-center justify-center border border-teal-200 text-teal-700 font-bold shadow-sm">
+        <div className="h-8 w-8 rounded-full bg-purple-100 flex items-center justify-center border border-purple-200 text-purple-700 font-bold shadow-sm">
           {initials}
         </div>
         <span className="text-sm font-semibold text-slate-700 max-w-[100px] truncate hidden md:block">
@@ -49,7 +49,7 @@ export default function UserNav() {
           <div className="px-4 py-3 border-b border-slate-50 mb-1">
             <p className="text-sm font-bold text-slate-900">{user?.name}</p>
             <p className="text-xs text-slate-500 truncate">{user?.email}</p>
-            <span className="inline-block mt-2 px-2 py-0.5 bg-teal-50 text-teal-700 text-[10px] font-bold uppercase tracking-wider rounded-md border border-teal-100">
+            <span className="inline-block mt-2 px-2 py-0.5 bg-purple-50 text-purple-700 text-[10px] font-bold uppercase tracking-wider rounded-md border border-purple-100">
               {user?.role?.toUpperCase() || "USER"}
             </span>
           </div>

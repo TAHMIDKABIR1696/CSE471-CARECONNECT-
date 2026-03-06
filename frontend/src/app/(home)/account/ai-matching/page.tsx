@@ -86,7 +86,7 @@ export default function AIMatchingPage() {
     return (
       <div className="flex justify-center items-center min-h-[60vh]">
         <div className="text-center">
-          <Loader2 className="animate-spin text-teal-600 h-12 w-12 mx-auto mb-4" />
+          <Loader2 className="animate-spin text-purple-600 h-12 w-12 mx-auto mb-4" />
           <p className="text-slate-600">Finding your perfect matches...</p>
         </div>
       </div>
@@ -98,7 +98,7 @@ export default function AIMatchingPage() {
       {/* Header */}
       <div className="text-center space-y-4">
         <div className="flex items-center justify-center gap-3">
-          <Sparkles className="h-8 w-8 text-teal-600" />
+          <Sparkles className="h-8 w-8 text-purple-600" />
           <h1 className="text-4xl font-black text-slate-900">
             AI-Powered Matching
           </h1>
@@ -108,7 +108,7 @@ export default function AIMatchingPage() {
           availability, budget, personality, experience, and ratings to find
           your perfect babysitter match.
         </p>
-        <div className="flex items-center justify-center gap-2 text-sm text-teal-600 font-bold">
+        <div className="flex items-center justify-center gap-2 text-sm text-purple-600 font-bold">
           <TrendingUp className="h-4 w-4" />
           <span>{matches.length} Matches Found</span>
         </div>
@@ -134,11 +134,11 @@ export default function AIMatchingPage() {
             return (
               <div
                 key={sitter.id}
-                className="bg-white rounded-3xl border-2 border-slate-100 p-6 hover:shadow-xl hover:border-teal-200 transition-all relative overflow-hidden"
+                className="bg-white rounded-3xl border-2 border-slate-100 p-6 hover:shadow-xl hover:border-purple-200 transition-all relative overflow-hidden"
               >
                 {/* Match Score Badge */}
                 <div className="absolute top-4 right-4">
-                  <div className="bg-gradient-to-r from-teal-500 to-emerald-500 text-white px-4 py-2 rounded-full text-sm font-black flex items-center gap-2">
+                  <div className="bg-gradient-to-r from-purple-500 to-emerald-500 text-white px-4 py-2 rounded-full text-sm font-black flex items-center gap-2">
                     <TrendingUp className="h-4 w-4" />
                     {matchPercentage}% Match
                   </div>
@@ -146,7 +146,7 @@ export default function AIMatchingPage() {
 
                 {/* Sitter Info */}
                 <div className="flex gap-5 items-start mb-6">
-                  <div className="w-20 h-20 bg-gradient-to-br from-teal-100 to-emerald-100 rounded-3xl flex items-center justify-center text-3xl font-black text-teal-600 shrink-0">
+                  <div className="w-20 h-20 bg-gradient-to-br from-purple-100 to-emerald-100 rounded-3xl flex items-center justify-center text-3xl font-black text-purple-600 shrink-0">
                     {sitter.name.charAt(0)}
                   </div>
                   <div className="flex-1">
@@ -155,7 +155,7 @@ export default function AIMatchingPage() {
                         {sitter.name}
                       </h3>
                       {sitter.latitude && sitter.longitude && (
-                        <Navigation className="h-4 w-4 text-teal-600" />
+                        <Navigation className="h-4 w-4 text-purple-600" />
                       )}
                     </div>
                     <p className="text-sm text-slate-500 flex items-center gap-1">
@@ -204,7 +204,7 @@ export default function AIMatchingPage() {
                       </div>
                       <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-teal-500 rounded-full"
+                          className="h-full bg-purple-500 rounded-full"
                           style={{
                             width: `${factorScores.location * 100}%`,
                           }}
@@ -314,7 +314,7 @@ export default function AIMatchingPage() {
                 <div className="flex gap-3">
                   <Link
                     href={`/sitter/${sitter.id}`}
-                    className="flex-1 bg-slate-900 text-white px-6 py-3 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-teal-600 transition-all"
+                    className="flex-1 bg-slate-900 text-white px-6 py-3 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-purple-600 transition-all"
                   >
                     View Profile <ArrowRight className="h-4 w-4" />
                   </Link>

@@ -150,7 +150,7 @@ export default function CertificationsPage() {
   if (authLoading || loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="animate-spin h-8 w-8 text-teal-600" />
+        <Loader2 className="animate-spin h-8 w-8 text-purple-600" />
       </div>
     );
   }
@@ -163,20 +163,20 @@ export default function CertificationsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-teal-600 to-slate-800 rounded-3xl p-8 text-white shadow-lg">
+      <div className="bg-gradient-to-r from-purple-600 to-slate-800 rounded-3xl p-8 text-white shadow-lg">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold flex items-center gap-3">
               <FileBadge className="h-8 w-8" />
               My Certifications
             </h1>
-            <p className="text-teal-100 mt-2">
+            <p className="text-purple-100 mt-2">
               Showcase your qualifications and credentials
             </p>
           </div>
           <button
             onClick={() => setShowUploadModal(true)}
-            className="bg-white text-teal-600 px-6 py-3 rounded-xl font-bold hover:bg-teal-50 transition-colors flex items-center gap-2 shadow-lg"
+            className="bg-white text-purple-600 px-6 py-3 rounded-xl font-bold hover:bg-purple-50 transition-colors flex items-center gap-2 shadow-lg"
           >
             <Plus className="h-5 w-5" />
             Add Certification
@@ -196,7 +196,7 @@ export default function CertificationsPage() {
           </p>
           <button
             onClick={() => setShowUploadModal(true)}
-            className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-3 rounded-xl font-bold transition-colors flex items-center gap-2 mx-auto"
+            className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-xl font-bold transition-colors flex items-center gap-2 mx-auto"
           >
             <Plus className="h-5 w-5" />
             Add Your First Certification
@@ -210,8 +210,8 @@ export default function CertificationsPage() {
               className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 hover:shadow-md transition-shadow"
             >
               <div className="flex items-start justify-between mb-4">
-                <div className="bg-teal-50 p-3 rounded-xl">
-                  <FileBadge className="h-6 w-6 text-teal-600" />
+                <div className="bg-purple-50 p-3 rounded-xl">
+                  <FileBadge className="h-6 w-6 text-purple-600" />
                 </div>
                 <CheckCircle2 className="h-5 w-5 text-green-500" />
               </div>
@@ -238,7 +238,7 @@ export default function CertificationsPage() {
                   href={`http://localhost:5000${cert.documentUrl}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold text-teal-600 bg-teal-50 hover:bg-teal-100 rounded-lg transition-colors"
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold text-purple-600 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors"
                 >
                   <Download className="h-4 w-4" />
                   View Document
@@ -276,7 +276,7 @@ export default function CertificationsPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, title: e.target.value })
                   }
-                  className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none"
+                  className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none"
                   placeholder="e.g., First Aid Certificate"
                   required
                 />
@@ -292,7 +292,7 @@ export default function CertificationsPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, issuedBy: e.target.value })
                   }
-                  className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none"
+                  className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none"
                   placeholder="e.g., Red Cross"
                 />
               </div>
@@ -307,7 +307,7 @@ export default function CertificationsPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, issueDate: e.target.value })
                   }
-                  className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none"
+                  className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none"
                 />
               </div>
 
@@ -315,7 +315,7 @@ export default function CertificationsPage() {
                 <label className="text-sm font-bold text-slate-700 mb-1 block">
                   Document (PDF, Image) *
                 </label>
-                <div className="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center hover:border-teal-500 transition-colors">
+                <div className="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center hover:border-purple-500 transition-colors">
                   <input
                     type="file"
                     onChange={handleFileChange}
@@ -352,7 +352,7 @@ export default function CertificationsPage() {
                 <button
                   type="submit"
                   disabled={uploading}
-                  className="flex-1 px-4 py-3 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                  className="flex-1 px-4 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {uploading ? (
                     <>

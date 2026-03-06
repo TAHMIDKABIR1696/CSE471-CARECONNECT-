@@ -1,5 +1,5 @@
 import express from "express";
-import { registerUser, loginUser } from "../controllers/authController.js";
+import { registerUser, loginUser, socialLogin } from "../controllers/authController.js";
 import {
   validateRequired,
   validateEmail,
@@ -27,6 +27,15 @@ router.post(
     validateEmail("email")
   ),
   loginUser as express.RequestHandler
+);
+
+router.post(
+  "/social",
+  combineValidators(
+    validateRequired(["email", "name", "provider"]),
+    validateEmail("email")
+  ),
+  socialLogin as express.RequestHandler
 );
 
 export default router;

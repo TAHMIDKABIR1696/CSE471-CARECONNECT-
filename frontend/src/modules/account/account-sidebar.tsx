@@ -55,7 +55,7 @@ export function AccountSidebar() {
     { label: "Live Sessions", href: "/account/sessions", icon: Activity },
     { label: "Reviews", href: "/account/reviews", icon: Star },
     { label: "Availability", href: "/account/availability", icon: Clock },
-    { label: "Earnings", href: "/account/earnings", icon: Wallet },
+    { label: "Earnings", href: "/account/payments", icon: Wallet },
     { label: "Payments", href: "/account/payments", icon: CreditCard },
     {
       label: "Certifications",
@@ -134,7 +134,7 @@ export function AccountSidebar() {
                   href={item.href}
                   className={`group flex items-center justify-between px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 ${
                     isActive
-                      ? "bg-teal-50 text-teal-700 shadow-sm ring-1 ring-teal-100"
+                      ? "bg-purple-50 text-purple-700 shadow-sm ring-1 ring-purple-100"
                       : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                   }`}
                 >
@@ -142,7 +142,7 @@ export function AccountSidebar() {
                     <Icon
                       className={`h-5 w-5 transition-colors ${
                         isActive
-                          ? "text-teal-600"
+                          ? "text-purple-600"
                           : "text-slate-400 group-hover:text-slate-600"
                       }`}
                     />
@@ -150,7 +150,7 @@ export function AccountSidebar() {
                   </div>
                   {/* Active Indicator Icon */}
                   {isActive && (
-                    <ChevronRight className="h-4 w-4 text-teal-500" />
+                    <ChevronRight className="h-4 w-4 text-purple-500" />
                   )}
                 </Link>
               );
@@ -165,7 +165,7 @@ export function AccountSidebar() {
                 href="/account/chatbot"
                 className={`flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-colors ${
                   pathname === "/account/chatbot"
-                    ? "bg-teal-50 text-teal-700"
+                    ? "bg-purple-50 text-purple-700"
                     : "text-slate-600 hover:bg-slate-50"
                 }`}
               >
@@ -184,7 +184,7 @@ export function AccountSidebar() {
                 href={item.href}
                 className={`flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-colors ${
                   pathname === item.href
-                    ? "bg-teal-50 text-teal-700"
+                    ? "bg-purple-50 text-purple-700"
                     : "text-slate-600 hover:bg-slate-50"
                 }`}
               >
@@ -203,16 +203,16 @@ export function AccountSidebar() {
         </div>
 
         {/* Support Card (UI Friendly Addition) */}
-        <div className="bg-gradient-to-br from-teal-600 to-teal-800 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
+        <div className="bg-gradient-to-br from-purple-600 to-purple-800 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
           <div className="relative z-10">
             <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center mb-3">
               <HelpCircle className="h-6 w-6 text-white" />
             </div>
             <h4 className="font-bold text-sm">Need Help?</h4>
-            <p className="text-xs text-teal-100 mt-1 mb-3 leading-relaxed">
+            <p className="text-xs text-purple-100 mt-1 mb-3 leading-relaxed">
               Check our support docs or contact support for queries.
             </p>
-            <button className="text-xs font-bold bg-white text-teal-700 px-3 py-2 rounded-lg hover:bg-teal-50 transition">
+            <button className="text-xs font-bold bg-white text-purple-700 px-3 py-2 rounded-lg hover:bg-purple-50 transition">
               Contact Support
             </button>
           </div>

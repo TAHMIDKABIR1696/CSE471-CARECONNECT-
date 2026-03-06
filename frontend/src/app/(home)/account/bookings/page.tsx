@@ -148,7 +148,7 @@ export default function BookingsPage() {
   if (loading)
     return (
       <div className="flex justify-center p-20">
-        <Loader2 className="animate-spin text-teal-600" />
+        <Loader2 className="animate-spin text-purple-600" />
       </div>
     );
 
@@ -157,7 +157,7 @@ export default function BookingsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-            <CalendarCheck className="h-6 w-6 text-teal-600" />
+            <CalendarCheck className="h-6 w-6 text-purple-600" />
             {user?.role === "PARENT" ? "My Bookings" : "Job Requests"}
           </h1>
           <p className="text-slate-500 text-sm mt-1">
@@ -189,7 +189,7 @@ export default function BookingsPage() {
                 <div
                   className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold shrink-0 ${
                     isParent
-                      ? "bg-teal-50 text-teal-600"
+                      ? "bg-purple-50 text-purple-600"
                       : "bg-indigo-50 text-indigo-600"
                   }`}
                 >
@@ -243,7 +243,7 @@ export default function BookingsPage() {
                         onClick={() =>
                           handleStatusUpdate(booking.id, "CONFIRMED")
                         }
-                        className="px-4 py-2 text-xs font-bold text-white bg-teal-600 hover:bg-teal-700 rounded-lg transition-colors flex items-center gap-2"
+                        className="px-4 py-2 text-xs font-bold text-white bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors flex items-center gap-2"
                       >
                         {actionLoading === booking.id ? (
                           <Loader2 className="animate-spin h-3 w-3" />
@@ -275,7 +275,7 @@ export default function BookingsPage() {
                         {otherParty.email}
                       </p>
                       {!isParent && booking.parent?.user?.phoneNumber && (
-                        <p className="text-teal-600">
+                        <p className="text-purple-600">
                           {booking.parent.user.phoneNumber}
                         </p>
                       )}
@@ -288,7 +288,7 @@ export default function BookingsPage() {
                     !booking.payment && (
                       <button
                         onClick={() => openPaymentModal(booking)}
-                        className="px-4 py-2 text-xs font-bold text-white bg-teal-600 hover:bg-teal-700 rounded-lg transition-colors flex items-center gap-2"
+                        className="px-4 py-2 text-xs font-bold text-white bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors flex items-center gap-2"
                       >
                         <CreditCard className="h-3 w-3" />
                         Pay Now

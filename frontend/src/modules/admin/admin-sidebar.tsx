@@ -64,14 +64,14 @@ export default function AdminSidebar({
       {/* 🟢 Header / Logo */}
       <div className="h-20 flex items-center justify-center border-b border-slate-800 relative">
         {!isCollapsed ? (
-          <h1 className="text-xl font-bold tracking-wider text-teal-400 animate-in fade-in duration-300">
+          <h1 className="text-xl font-bold tracking-wider text-purple-400 animate-in fade-in duration-300">
             Care<span className="text-white">Connect</span>
             <span className="text-[10px] ml-1 bg-slate-800 px-1.5 py-0.5 rounded text-slate-400 uppercase tracking-widest">
               Admin
             </span>
           </h1>
         ) : (
-          <div className="w-10 h-10 bg-teal-600 rounded-xl flex items-center justify-center text-white font-bold text-xl">
+          <div className="w-10 h-10 bg-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-xl">
             C
           </div>
         )}
@@ -81,7 +81,7 @@ export default function AdminSidebar({
           variant="ghost"
           size="icon"
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="absolute -right-3 top-7 w-6 h-6 rounded-full bg-teal-600 text-white hover:bg-teal-500 shadow-md border border-slate-900 z-50 hidden md:flex"
+          className="absolute -right-3 top-7 w-6 h-6 rounded-full bg-purple-600 text-white hover:bg-purple-500 shadow-md border border-slate-900 z-50 hidden md:flex"
         >
           {isCollapsed ? (
             <ChevronRight className="h-3 w-3" />
@@ -106,7 +106,7 @@ export default function AdminSidebar({
                     className={cn(
                       "flex items-center justify-center h-12 w-12 rounded-xl transition-all mx-auto",
                       isActive
-                        ? "bg-teal-600 text-white shadow-lg shadow-teal-900/20"
+                        ? "bg-purple-600 text-white shadow-lg shadow-purple-900/20"
                         : "text-slate-400 hover:bg-slate-800 hover:text-white"
                     )}
                   >
@@ -128,7 +128,7 @@ export default function AdminSidebar({
                 className={cn(
                   "flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-sm",
                   isActive
-                    ? "bg-teal-600 text-white shadow-lg shadow-teal-900/20"
+                    ? "bg-purple-600 text-white shadow-lg shadow-purple-900/20"
                     : "text-slate-400 hover:bg-slate-800 hover:text-white"
                 )}
               >

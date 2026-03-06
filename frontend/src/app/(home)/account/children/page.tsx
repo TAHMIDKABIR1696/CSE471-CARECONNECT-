@@ -178,7 +178,7 @@ export default function ChildrenPage() {
   if (isLoading)
     return (
       <div className="p-10 flex justify-center">
-        <Loader2 className="animate-spin text-teal-600" />
+        <Loader2 className="animate-spin text-purple-600" />
       </div>
     );
 
@@ -228,7 +228,7 @@ export default function ChildrenPage() {
       <div className="flex justify-between items-center bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
         <div>
           <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-            <Baby className="h-6 w-6 text-teal-600" /> My Children
+            <Baby className="h-6 w-6 text-purple-600" /> My Children
           </h1>
           <p className="text-sm text-slate-500 mt-1">
             Manage profiles for better matching.
@@ -241,7 +241,7 @@ export default function ChildrenPage() {
               resetForm();
               setShowForm(true);
             }}
-            className="flex items-center gap-2 px-5 py-2.5 bg-teal-600 text-white rounded-xl font-bold text-sm hover:bg-teal-700 shadow-lg shadow-teal-200 transition-all"
+            className="flex items-center gap-2 px-5 py-2.5 bg-purple-600 text-white rounded-xl font-bold text-sm hover:bg-purple-700 shadow-lg shadow-purple-200 transition-all"
           >
             <Plus className="h-4 w-4" /> Add Child
           </button>
@@ -250,7 +250,7 @@ export default function ChildrenPage() {
 
       {/* Form (Add / Edit) */}
       {showForm && (
-        <div className="bg-white p-8 rounded-2xl shadow-md border border-teal-100 animate-in fade-in slide-in-from-top-2 relative">
+        <div className="bg-white p-8 rounded-2xl shadow-md border border-purple-100 animate-in fade-in slide-in-from-top-2 relative">
           <button
             onClick={resetForm}
             className="absolute top-4 right-4 text-slate-400 hover:text-slate-600"
@@ -271,7 +271,7 @@ export default function ChildrenPage() {
                 </label>
                 <input
                   {...register("name", { required: true })}
-                  className="w-full p-2.5 bg-slate-50 border rounded-lg focus:ring-teal-500 outline-none"
+                  className="w-full p-2.5 bg-slate-50 border rounded-lg focus:ring-purple-500 outline-none"
                   placeholder="Child's Name"
                 />
                 {errors.name && (
@@ -286,7 +286,7 @@ export default function ChildrenPage() {
                   <input
                     type="number"
                     {...register("age", { required: true })}
-                    className="w-full p-2.5 bg-slate-50 border rounded-lg focus:ring-teal-500 outline-none"
+                    className="w-full p-2.5 bg-slate-50 border rounded-lg focus:ring-purple-500 outline-none"
                     placeholder="Age"
                   />
                 </div>
@@ -296,7 +296,7 @@ export default function ChildrenPage() {
                   </label>
                   <select
                     {...register("gender")}
-                    className="w-full p-2.5 bg-slate-50 border rounded-lg focus:ring-teal-500 outline-none"
+                    className="w-full p-2.5 bg-slate-50 border rounded-lg focus:ring-purple-500 outline-none"
                   >
                     <option value="Male">Boy</option>
                     <option value="Female">Girl</option>
@@ -317,9 +317,9 @@ export default function ChildrenPage() {
                     max="5"
                     step="1"
                     {...register("stubbornnessLvl")}
-                    className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-teal-600"
+                    className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
                   />
-                  <span className="font-bold text-teal-700 w-6 text-center text-lg">
+                  <span className="font-bold text-purple-700 w-6 text-center text-lg">
                     {stubbornnessValue || 1}
                   </span>
                 </div>
@@ -330,7 +330,7 @@ export default function ChildrenPage() {
                 </label>
                 <input
                   {...register("interests")}
-                  className="w-full p-2.5 bg-slate-50 border rounded-lg focus:ring-teal-500 outline-none"
+                  className="w-full p-2.5 bg-slate-50 border rounded-lg focus:ring-purple-500 outline-none"
                   placeholder="Drawing, Lego, Football..."
                 />
               </div>
@@ -340,7 +340,7 @@ export default function ChildrenPage() {
                 </label>
                 <textarea
                   {...register("specialNeeds")}
-                  className="w-full p-2.5 bg-slate-50 border rounded-lg focus:ring-teal-500 outline-none"
+                  className="w-full p-2.5 bg-slate-50 border rounded-lg focus:ring-purple-500 outline-none"
                   placeholder="Any allergies or medical conditions..."
                   rows={2}
                 />
@@ -358,7 +358,7 @@ export default function ChildrenPage() {
               <button
                 disabled={isSubmitting}
                 type="submit"
-                className="bg-slate-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-teal-600 transition-all flex items-center gap-2"
+                className="bg-slate-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-purple-600 transition-all flex items-center gap-2"
               >
                 {isSubmitting ? (
                   <Loader2 className="animate-spin h-5 w-5" />
@@ -384,7 +384,7 @@ export default function ChildrenPage() {
             </p>
             <button
               onClick={() => setShowForm(true)}
-              className="text-teal-600 font-bold hover:underline"
+              className="text-purple-600 font-bold hover:underline"
             >
               Add First Child
             </button>
@@ -400,7 +400,7 @@ export default function ChildrenPage() {
             <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
               <button
                 onClick={() => handleEdit(child)}
-                className="p-2 bg-slate-100 hover:bg-teal-50 text-slate-500 hover:text-teal-600 rounded-lg transition-colors"
+                className="p-2 bg-slate-100 hover:bg-purple-50 text-slate-500 hover:text-purple-600 rounded-lg transition-colors"
                 title="Edit"
               >
                 <Pencil className="h-4 w-4" />
@@ -452,7 +452,7 @@ export default function ChildrenPage() {
 
             <div className="mt-6 space-y-3 border-t border-slate-50 pt-4">
               <div className="flex items-center gap-3 text-sm text-slate-600">
-                <Activity className="h-4 w-4 text-teal-500" />
+                <Activity className="h-4 w-4 text-purple-500" />
                 <span className="truncate font-medium">
                   {child.interests || "No specific interests listed"}
                 </span>

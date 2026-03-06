@@ -75,7 +75,7 @@ export default function ApprovalDetailsPage() {
   if (loading)
     return (
       <div className="flex justify-center p-20">
-        <Loader2 className="animate-spin text-teal-600 h-10 w-10" />
+        <Loader2 className="animate-spin text-purple-600 h-10 w-10" />
       </div>
     );
   if (!user) return null;
@@ -105,10 +105,10 @@ export default function ApprovalDetailsPage() {
 
           <div className="flex flex-wrap gap-4 mt-4 text-sm font-medium text-slate-600">
             <span className="flex items-center gap-1.5">
-              <Mail className="h-4 w-4 text-teal-500" /> {user.email}
+              <Mail className="h-4 w-4 text-purple-500" /> {user.email}
             </span>
             <span className="flex items-center gap-1.5">
-              <Clock className="h-4 w-4 text-teal-500" /> Joined:{" "}
+              <Clock className="h-4 w-4 text-purple-500" /> Joined:{" "}
               {new Date(user.createdAt).toLocaleDateString()}
             </span>
           </div>
@@ -182,7 +182,7 @@ export default function ApprovalDetailsPage() {
           </button>
           <button
             onClick={() => setActionData({ type: "approve" })}
-            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-teal-500 hover:bg-teal-600 text-white font-bold text-sm transition-all shadow-lg shadow-teal-900/50"
+            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-purple-500 hover:bg-purple-600 text-white font-bold text-sm transition-all shadow-lg shadow-purple-900/50"
           >
             <CheckCircle className="h-4 w-4" /> Approve Sitter
           </button>
@@ -208,7 +208,7 @@ export default function ApprovalDetailsPage() {
             <AlertDialogAction
               onClick={handleAction}
               className={
-                actionData?.type === "approve" ? "bg-teal-600" : "bg-red-600"
+                actionData?.type === "approve" ? "bg-purple-600" : "bg-red-600"
               }
             >
               Confirm

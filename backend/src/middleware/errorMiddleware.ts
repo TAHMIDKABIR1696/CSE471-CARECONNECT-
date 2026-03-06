@@ -106,15 +106,11 @@ export const globalErrorHandler = (
     code: err.code || null,
   };
 
-  console.error("Error:", {
-    message: error.message,
+  console.error(`[${new Date().toISOString()}] ERROR ${req.method} ${req.path}`, {
+    requestId: req.headers["x-request-id"],
     statusCode: error.statusCode,
+    message: error.message,
     stack: process.env.NODE_ENV === "development" ? err.stack : undefined,
-    path: req.path,
-    method: req.method,
-    body: req.body,
-    params: req.params,
-    query: req.query,
   });
 
   // Handle Prisma errors

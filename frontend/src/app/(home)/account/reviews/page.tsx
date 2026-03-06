@@ -194,7 +194,7 @@ export default function ReviewsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="animate-spin h-8 w-8 text-teal-600" />
+        <Loader2 className="animate-spin h-8 w-8 text-purple-600" />
       </div>
     );
   }
@@ -202,12 +202,12 @@ export default function ReviewsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-teal-600 to-slate-800 rounded-3xl p-8 text-white shadow-lg">
+      <div className="bg-gradient-to-r from-purple-600 to-slate-800 rounded-3xl p-8 text-white shadow-lg">
         <h1 className="text-3xl font-bold flex items-center gap-3">
           <Star className="h-8 w-8" />
           Ratings & Reviews
         </h1>
-        <p className="text-teal-100 mt-2">
+        <p className="text-purple-100 mt-2">
           Share your experience and help others make informed decisions
         </p>
       </div>
@@ -216,8 +216,8 @@ export default function ReviewsPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
           <div className="flex items-center gap-4">
-            <div className="bg-teal-50 p-3 rounded-xl">
-              <MessageSquare className="h-6 w-6 text-teal-600" />
+            <div className="bg-purple-50 p-3 rounded-xl">
+              <MessageSquare className="h-6 w-6 text-purple-600" />
             </div>
             <div>
               <p className="text-2xl font-bold text-slate-800">{reviews.length}</p>
@@ -282,8 +282,8 @@ export default function ReviewsPage() {
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <div className="bg-teal-100 p-2 rounded-lg">
-                          <User className="h-5 w-5 text-teal-600" />
+                        <div className="bg-purple-100 p-2 rounded-lg">
+                          <User className="h-5 w-5 text-purple-600" />
                         </div>
                         <div>
                           <h3 className="font-bold text-lg text-slate-900">
@@ -303,7 +303,7 @@ export default function ReviewsPage() {
                     </div>
                     <button
                       onClick={() => openReviewModal(booking)}
-                      className="px-6 py-3 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl transition-colors flex items-center gap-2 whitespace-nowrap"
+                      className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl transition-colors flex items-center gap-2 whitespace-nowrap"
                     >
                       <Star className="h-5 w-5" />
                       Write Review
@@ -319,7 +319,7 @@ export default function ReviewsPage() {
       {/* My Reviews Section */}
       <div className="space-y-4">
         <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-          <MessageSquare className="h-5 w-5 text-teal-600" />
+          <MessageSquare className="h-5 w-5 text-purple-600" />
           My Reviews ({reviews.length})
         </h2>
         {reviews.length === 0 ? (
@@ -338,8 +338,8 @@ export default function ReviewsPage() {
                 className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6"
               >
                 <div className="flex items-start gap-4">
-                  <div className="bg-teal-100 p-3 rounded-xl">
-                    <User className="h-6 w-6 text-teal-600" />
+                  <div className="bg-purple-100 p-3 rounded-xl">
+                    <User className="h-6 w-6 text-purple-600" />
                   </div>
                   <div className="flex-1 space-y-3">
                     <div className="flex items-start justify-between">
@@ -539,7 +539,7 @@ export default function ReviewsPage() {
                     setFormData({ ...formData, comment: e.target.value })
                   }
                   rows={4}
-                  className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none resize-none"
+                  className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none resize-none"
                   placeholder="Share your experience with this booking..."
                 />
               </div>
@@ -555,7 +555,7 @@ export default function ReviewsPage() {
                 <button
                   type="submit"
                   disabled={submitting || formData.overallRating === 0}
-                  className="flex-1 px-4 py-3 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="flex-1 px-4 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {submitting ? (
                     <>

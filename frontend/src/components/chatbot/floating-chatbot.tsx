@@ -129,7 +129,7 @@ export default function FloatingChatbot() {
       {/* Floating Button */}
       <button
         onClick={handleToggle}
-        className={`fixed bottom-6 right-6 z-50 w-14 h-14 bg-teal-600 hover:bg-teal-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group ${
+        className={`fixed bottom-6 right-6 z-50 w-14 h-14 bg-purple-600 hover:bg-purple-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group ${
           isOpen ? "hidden" : "flex"
         }`}
         aria-label="Open chatbot"
@@ -149,14 +149,14 @@ export default function FloatingChatbot() {
           }`}
         >
           {/* Header */}
-          <div className="bg-gradient-to-r from-teal-600 to-teal-700 text-white p-4 rounded-t-2xl flex items-center justify-between">
+          <div className="bg-gradient-to-r from-purple-600 to-purple-700 text-white p-4 rounded-t-2xl flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
                 <Bot className="h-5 w-5" />
               </div>
               <div>
                 <h3 className="font-bold text-sm">AI Assistant</h3>
-                <p className="text-xs text-teal-100">
+                <p className="text-xs text-purple-100">
                   {isMinimized ? "Click to expand" : "How can I help you?"}
                 </p>
               </div>
@@ -204,14 +204,14 @@ export default function FloatingChatbot() {
                       }`}
                     >
                       {message.type === "BOT" && (
-                        <div className="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center shrink-0">
-                          <Bot className="h-4 w-4 text-teal-600" />
+                        <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center shrink-0">
+                          <Bot className="h-4 w-4 text-purple-600" />
                         </div>
                       )}
                       <div
                         className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm ${
                           message.type === "USER"
-                            ? "bg-teal-600 text-white"
+                            ? "bg-purple-600 text-white"
                             : "bg-white text-slate-900 border border-slate-200"
                         }`}
                       >
@@ -219,7 +219,7 @@ export default function FloatingChatbot() {
                         <p
                           className={`text-xs mt-1 ${
                             message.type === "USER"
-                              ? "text-teal-50"
+                              ? "text-purple-50"
                               : "text-slate-400"
                           }`}
                         >
@@ -241,8 +241,8 @@ export default function FloatingChatbot() {
                 )}
                 {loading && (
                   <div className="flex gap-2 justify-start">
-                    <div className="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center shrink-0">
-                      <Bot className="h-4 w-4 text-teal-600" />
+                    <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center shrink-0">
+                      <Bot className="h-4 w-4 text-purple-600" />
                     </div>
                     <div className="bg-white rounded-2xl px-3 py-2 border border-slate-200">
                       <Loader2 className="animate-spin h-4 w-4 text-slate-400" />
@@ -264,13 +264,13 @@ export default function FloatingChatbot() {
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     placeholder="Type a message..."
-                    className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                    className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     disabled={loading}
                   />
                   <button
                     type="submit"
                     disabled={loading || !input.trim()}
-                    className="px-4 py-2 bg-teal-600 text-white rounded-xl font-bold hover:bg-teal-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                    className="px-4 py-2 bg-purple-600 text-white rounded-xl font-bold hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                   >
                     {loading ? (
                       <Loader2 className="animate-spin h-4 w-4" />

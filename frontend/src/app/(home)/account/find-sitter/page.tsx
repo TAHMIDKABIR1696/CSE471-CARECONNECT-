@@ -89,12 +89,12 @@ export default function FindSitterPage() {
   if (loading && !isSearching)
     return (
       <div className="flex justify-center p-20">
-        <Loader2 className="animate-spin text-teal-600 h-10 w-10" />
+        <Loader2 className="animate-spin text-purple-600 h-10 w-10" />
       </div>
     );
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-10 space-y-8 animate-in fade-in duration-700">
+    <div className="max-w-7xl mx-auto px-4 py-10 space-y-8 animate-in fade-in duration-700 min-h-screen bg-[#FDF4F8]">
       {/* 1. Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -131,12 +131,12 @@ export default function FindSitterPage() {
           {/* Location Search */}
           <div className="space-y-3">
             <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-teal-600" /> Location
+              <MapPin className="h-4 w-4 text-purple-600" /> Location
             </label>
             <input
               type="text"
               placeholder="City or Area..."
-              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-teal-500"
+              className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-purple-500"
               value={filters.location}
               onChange={(e) =>
                 setFilters({ ...filters, location: e.target.value })
@@ -194,10 +194,10 @@ export default function FindSitterPage() {
                   <input
                     type="radio"
                     name="rating"
-                    className="accent-teal-600 h-4 w-4"
+                    className="accent-purple-600 h-4 w-4"
                     onChange={() => setFilters({ ...filters, minRating: star })}
                   />
-                  <span className="text-sm text-slate-600 flex items-center gap-1 group-hover:text-teal-600">
+                  <span className="text-sm text-slate-600 flex items-center gap-1 group-hover:text-purple-600">
                     {star} Stars & Up
                   </span>
                 </label>
@@ -207,7 +207,7 @@ export default function FindSitterPage() {
 
           <button
             onClick={fetchSitters}
-            className="w-full py-4 bg-slate-900 hover:bg-teal-600 text-white font-bold rounded-2xl transition-all shadow-lg"
+            className="w-full py-4 bg-slate-900 hover:bg-purple-600 text-white font-bold rounded-2xl transition-all shadow-lg"
           >
             Apply Filters
           </button>
@@ -217,7 +217,7 @@ export default function FindSitterPage() {
         <div className="lg:col-span-3">
           {isSearching ? (
             <div className="flex justify-center py-20">
-              <Loader2 className="animate-spin text-teal-600 h-10 w-10" />
+              <Loader2 className="animate-spin text-purple-600 h-10 w-10" />
             </div>
           ) : sitters.length === 0 ? (
             <div className="text-center py-24 bg-white rounded-3xl border border-dashed border-slate-300">
@@ -243,15 +243,15 @@ export default function FindSitterPage() {
                     {/* GPS Badge */}
                     {profile.latitude && (
                       <div
-                        className="absolute top-4 right-4 bg-teal-50 text-teal-600 p-1.5 rounded-full"
+                        className="absolute top-4 right-4 bg-purple-50 text-purple-600 p-1.5 rounded-full"
                         title="GPS Verified"
                       >
-                        <Navigation className="h-3.5 w-3.5 fill-teal-600" />
+                        <Navigation className="h-3.5 w-3.5 fill-purple-600" />
                       </div>
                     )}
 
                     <div className="flex gap-5 items-start mb-6">
-                      <div className="w-20 h-20 bg-slate-100 rounded-3xl flex items-center justify-center text-3xl font-black text-slate-300 shrink-0 group-hover:bg-teal-50 group-hover:text-teal-500 transition-colors">
+                      <div className="w-20 h-20 bg-slate-100 rounded-3xl flex items-center justify-center text-3xl font-black text-slate-300 shrink-0 group-hover:bg-purple-50 group-hover:text-purple-500 transition-colors">
                         {user.name.charAt(0)}
                       </div>
                       <div>
@@ -302,7 +302,7 @@ export default function FindSitterPage() {
                       </div>
                       <Link
                         href={`/sitter/${user.id}`}
-                        className="bg-slate-900 text-white px-6 py-3 rounded-2xl text-sm font-bold flex items-center gap-2 hover:bg-teal-600 transition-all shadow-lg shadow-slate-200 group-hover:shadow-teal-100"
+                        className="bg-slate-900 text-white px-6 py-3 rounded-2xl text-sm font-bold flex items-center gap-2 hover:bg-purple-600 transition-all shadow-lg shadow-slate-200 group-hover:shadow-purple-100"
                       >
                         View <ArrowRight className="h-4 w-4" />
                       </Link>

@@ -147,7 +147,7 @@ export default function AdminBookingsPage() {
   if (loading)
     return (
       <div className="flex justify-center p-20">
-        <Loader2 className="animate-spin text-teal-600 h-8 w-8" />
+        <Loader2 className="animate-spin text-purple-600 h-8 w-8" />
       </div>
     );
 
@@ -186,7 +186,7 @@ export default function AdminBookingsPage() {
           <input
             type="text"
             placeholder="Search by Parent or Sitter name..."
-            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-teal-500"
+            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-purple-500"
           />
         </div>
         <div className="flex items-center gap-2 w-full md:w-auto">
@@ -227,7 +227,7 @@ export default function AdminBookingsPage() {
                   <td className="px-6 py-4">
                     <div className="flex flex-col">
                       <span className="font-bold text-slate-800 flex items-center gap-1">
-                        <span className="text-teal-600 text-[10px] uppercase">
+                        <span className="text-purple-600 text-[10px] uppercase">
                           P:
                         </span>{" "}
                         {booking.parent.user.name}
@@ -346,7 +346,7 @@ export default function AdminBookingsPage() {
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 placeholder="Enter reason for status change..."
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-teal-500"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-purple-500"
                 rows={3}
               />
             </div>
@@ -370,7 +370,7 @@ export default function AdminBookingsPage() {
             <AlertDialogAction
               onClick={confirmStatusUpdate}
               disabled={updating}
-              className="bg-teal-600 hover:bg-teal-700"
+              className="bg-purple-600 hover:bg-purple-700"
             >
               {updating ? (
                 <>

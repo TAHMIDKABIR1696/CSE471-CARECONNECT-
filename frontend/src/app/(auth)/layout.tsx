@@ -30,7 +30,7 @@ export default function AuthLayout({
                 &ldquo;Finding the perfect care for your loved ones has never
                 been easier. Reliable, trusted, and always there for you.&rdquo;
               </p>
-              <footer className="text-sm">The Care Connect Team</footer>
+              <footer className="text-sm">The CareConnect Team</footer>
             </blockquote>
           </div>
         </div>
