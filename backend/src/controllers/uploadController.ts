@@ -3,7 +3,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
 import { Response } from "express";
-import prisma from "../config/db.js";
+import * as UploadModel from "../models/uploadModel.js";
 import { AuthRequest } from "../types/index.js";
 
 /**
@@ -20,21 +20,17 @@ const uploadDirs: Record<string, string> = {
 };
 
 Object.values(uploadDirs).forEach((dir) => {
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 });
 
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => {
     const uploadType = (_req as AuthRequest).body.uploadType || "profiles";
-    const uploadDir = uploadDirs[uploadType] || uploadDirs.profiles;
-    cb(null, uploadDir);
+    cb(null, uploadDirs[uploadType] || uploadDirs.profiles);
   },
   filename: (_req, file, cb) => {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    const ext = path.extname(file.originalname);
-    cb(null, `file-${uniqueSuffix}${ext}`);
+    cb(null, `file-${uniqueSuffix}${path.extname(file.originalname)}`);
   },
 });
 
@@ -46,40 +42,24 @@ const fileFilter = (
   const allowedTypes = /jpeg|jpg|png|gif|pdf|doc|docx/;
   const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
   const mimetype = allowedTypes.test(file.mimetype);
-
-  if (mimetype && extname) {
-    cb(null, true);
-  } else {
-    cb(new Error("Only images and documents are allowed!"));
-  }
+  if (mimetype && extname) cb(null, true);
+  else cb(new Error("Only images and documents are allowed!"));
 };
 
-export const upload = multer({
-  storage,
-  limits: { fileSize: 5 * 1024 * 1024 },
-  fileFilter,
-});
+export const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 }, fileFilter });
 
 // Upload profile picture
 export const uploadProfilePicture = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    if (!req.file) {
-      res.status(400).json({ message: "No file uploaded" });
-      return;
-    }
+    if (!req.file) { res.status(400).json({ message: "No file uploaded" }); return; }
 
     const userId = req.user!.id;
     const filePath = `/uploads/profiles/${req.file.filename}`;
 
-    await prisma.user.update({
-      where: { id: userId },
-      data: { profilePicture: filePath },
-    });
+    await UploadModel.updateProfilePicture(userId, filePath);
 
     res.status(200).json({
-      success: true,
-      message: "Profile picture uploaded successfully",
-      filePath,
+      success: true, message: "Profile picture uploaded successfully", filePath,
       url: `${process.env.BASE_URL || "http://localhost:5000"}${filePath}`,
     });
   } catch (error) {
@@ -91,49 +71,33 @@ export const uploadProfilePicture = async (req: AuthRequest, res: Response): Pro
 // Upload document
 export const uploadDocument = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    if (!req.file) {
-      res.status(400).json({ message: "No file uploaded" });
-      return;
-    }
+    if (!req.file) { res.status(400).json({ message: "No file uploaded" }); return; }
 
     const userId = req.user!.id;
     const { documentType, title, issuedBy, issueDate } = req.body;
     const filePath = `/uploads/documents/${req.file.filename}`;
 
     if (documentType === "certification") {
-      const sitter = await prisma.babysitter.findUnique({
-        where: { userId },
-      });
+      const sitter = await UploadModel.findSitterByUserId(userId);
+      if (!sitter) { res.status(404).json({ message: "Babysitter profile not found" }); return; }
 
-      if (!sitter) {
-        res.status(404).json({ message: "Babysitter profile not found" });
-        return;
-      }
-
-      const certification = await prisma.certification.create({
-        data: {
-          babysitterId: sitter.id,
-          title: title || "Certification",
-          documentUrl: filePath,
-          issuedBy: issuedBy || null,
-          issueDate: issueDate ? new Date(issueDate) : null,
-        },
+      const certification = await UploadModel.createCertification({
+        babysitterId: sitter.id,
+        title: title || "Certification",
+        documentUrl: filePath,
+        issuedBy: issuedBy || null,
+        issueDate: issueDate ? new Date(issueDate) : null,
       });
 
       res.status(201).json({
-        success: true,
-        message: "Document uploaded successfully",
-        certification,
-        filePath,
+        success: true, message: "Document uploaded successfully", certification, filePath,
         url: `${process.env.BASE_URL || "http://localhost:5000"}${filePath}`,
       });
       return;
     }
 
     res.status(200).json({
-      success: true,
-      message: "Document uploaded successfully",
-      filePath,
+      success: true, message: "Document uploaded successfully", filePath,
       url: `${process.env.BASE_URL || "http://localhost:5000"}${filePath}`,
     });
   } catch (error) {
@@ -145,17 +109,11 @@ export const uploadDocument = async (req: AuthRequest, res: Response): Promise<v
 // Upload activity photo
 export const uploadActivityPhoto = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    if (!req.file) {
-      res.status(400).json({ message: "No file uploaded" });
-      return;
-    }
+    if (!req.file) { res.status(400).json({ message: "No file uploaded" }); return; }
 
     const filePath = `/uploads/activities/${req.file.filename}`;
-
     res.status(200).json({
-      success: true,
-      message: "Activity photo uploaded successfully",
-      filePath,
+      success: true, message: "Activity photo uploaded successfully", filePath,
       url: `${process.env.BASE_URL || "http://localhost:5000"}${filePath}`,
     });
   } catch (error) {

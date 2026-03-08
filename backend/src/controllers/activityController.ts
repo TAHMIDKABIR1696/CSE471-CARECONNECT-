@@ -1,5 +1,5 @@
 import { Response } from "express";
-import prisma from "../config/db.js";
+import * as ActivityModel from "../models/activityModel.js";
 import { AuthRequest } from "../types/index.js";
 
 /**
@@ -12,59 +12,29 @@ export const createDailyReport = async (req: AuthRequest, res: Response): Promis
     const { bookingId, notes, moodRating } = req.body;
     const userId = req.user!.id;
 
-    if (!bookingId) {
-      res.status(400).json({ message: "Booking ID is required" });
-      return;
-    }
+    if (!bookingId) { res.status(400).json({ message: "Booking ID is required" }); return; }
 
-    const booking = await prisma.booking.findUnique({
-      where: { id: bookingId },
-      include: {
-        babysitter: { include: { user: true } },
-        dailyReport: true,
-      },
-    });
-
-    if (!booking) {
-      res.status(404).json({ message: "Booking not found" });
-      return;
-    }
-
+    const booking = await ActivityModel.findBookingWithReport(bookingId);
+    if (!booking) { res.status(404).json({ message: "Booking not found" }); return; }
     if (booking.babysitter.userId !== userId) {
-      res.status(403).json({ message: "Only babysitter can create daily reports" });
-      return;
+      res.status(403).json({ message: "Only babysitter can create daily reports" }); return;
     }
 
     let dailyReport;
     if (booking.dailyReport) {
-      dailyReport = await prisma.dailyReport.update({
-        where: { id: booking.dailyReport.id },
-        data: {
-          notes: notes || booking.dailyReport.notes,
-          moodRating: moodRating ? parseInt(moodRating) : booking.dailyReport.moodRating,
-        },
-        include: {
-          activities: { orderBy: { timestamp: "desc" } },
-        },
+      dailyReport = await ActivityModel.updateReport(booking.dailyReport.id, {
+        notes: notes || booking.dailyReport.notes,
+        moodRating: moodRating ? parseInt(moodRating) : booking.dailyReport.moodRating,
       });
     } else {
-      dailyReport = await prisma.dailyReport.create({
-        data: {
-          bookingId: booking.id,
-          notes: notes || null,
-          moodRating: moodRating ? parseInt(moodRating) : null,
-        },
-        include: {
-          activities: { orderBy: { timestamp: "desc" } },
-        },
-      });
+      dailyReport = await ActivityModel.createReport(
+        booking.id,
+        notes || null,
+        moodRating ? parseInt(moodRating) : null
+      );
     }
 
-    res.status(201).json({
-      success: true,
-      message: "Daily report created/updated successfully",
-      report: dailyReport,
-    });
+    res.status(201).json({ success: true, message: "Daily report created/updated successfully", report: dailyReport });
   } catch (error) {
     console.error("Create Daily Report Error:", error);
     res.status(500).json({ message: "Failed to create daily report" });
@@ -78,50 +48,29 @@ export const addActivityLog = async (req: AuthRequest, res: Response): Promise<v
     const userId = req.user!.id;
 
     if (!bookingId || !type) {
-      res.status(400).json({ message: "Booking ID and activity type are required" });
-      return;
+      res.status(400).json({ message: "Booking ID and activity type are required" }); return;
     }
 
-    const booking = await prisma.booking.findUnique({
-      where: { id: bookingId },
-      include: {
-        babysitter: { include: { user: true } },
-        dailyReport: true,
-      },
-    });
-
-    if (!booking) {
-      res.status(404).json({ message: "Booking not found" });
-      return;
-    }
-
+    const booking = await ActivityModel.findBookingWithReport(bookingId);
+    if (!booking) { res.status(404).json({ message: "Booking not found" }); return; }
     if (booking.babysitter.userId !== userId) {
-      res.status(403).json({ message: "Only babysitter can add activity logs" });
-      return;
+      res.status(403).json({ message: "Only babysitter can add activity logs" }); return;
     }
 
     let reportId = booking.dailyReport?.id;
     if (!reportId) {
-      const newReport = await prisma.dailyReport.create({
-        data: { bookingId: booking.id },
-      });
+      const newReport = await ActivityModel.createReport(booking.id);
       reportId = newReport.id;
     }
 
-    const activity = await prisma.activityLog.create({
-      data: {
-        reportId,
-        type,
-        description: description || null,
-        photoUrl: photoUrl || null,
-      },
+    const activity = await ActivityModel.createActivityLog({
+      reportId,
+      type,
+      description: description || null,
+      photoUrl: photoUrl || null,
     });
 
-    res.status(201).json({
-      success: true,
-      message: "Activity logged successfully",
-      activity,
-    });
+    res.status(201).json({ success: true, message: "Activity logged successfully", activity });
   } catch (error) {
     console.error("Add Activity Log Error:", error);
     res.status(500).json({ message: "Failed to add activity log" });
@@ -134,43 +83,17 @@ export const getDailyReport = async (req: AuthRequest, res: Response): Promise<v
     const bookingId = req.params.bookingId as string;
     const userId = req.user!.id;
 
-    const booking = await prisma.booking.findUnique({
-      where: { id: bookingId },
-      include: {
-        parent: { include: { user: true } },
-        babysitter: { include: { user: true } },
-        dailyReport: {
-          include: {
-            activities: { orderBy: { timestamp: "desc" } },
-          },
-        },
-      },
-    });
-
-    if (!booking) {
-      res.status(404).json({ message: "Booking not found" });
-      return;
-    }
+    const booking = await ActivityModel.getBookingWithFullReport(bookingId);
+    if (!booking) { res.status(404).json({ message: "Booking not found" }); return; }
 
     const isAuthorized =
-      booking.parent.userId === userId ||
-      booking.babysitter.userId === userId ||
-      req.user!.role === "ADMIN";
-
-    if (!isAuthorized) {
-      res.status(403).json({ message: "Not authorized" });
-      return;
-    }
+      booking.parent.userId === userId || booking.babysitter.userId === userId || req.user!.role === "ADMIN";
+    if (!isAuthorized) { res.status(403).json({ message: "Not authorized" }); return; }
 
     res.status(200).json({
       success: true,
       report: booking.dailyReport || null,
-      booking: {
-        id: booking.id,
-        startTime: booking.startTime,
-        endTime: booking.endTime,
-        status: booking.status,
-      },
+      booking: { id: booking.id, startTime: booking.startTime, endTime: booking.endTime, status: booking.status },
     });
   } catch (error) {
     console.error("Get Daily Report Error:", error);
@@ -184,38 +107,14 @@ export const getActivities = async (req: AuthRequest, res: Response): Promise<vo
     const bookingId = req.params.bookingId as string;
     const userId = req.user!.id;
 
-    const booking = await prisma.booking.findUnique({
-      where: { id: bookingId },
-      include: {
-        parent: { include: { user: true } },
-        babysitter: { include: { user: true } },
-        dailyReport: {
-          include: {
-            activities: { orderBy: { timestamp: "desc" } },
-          },
-        },
-      },
-    });
-
-    if (!booking) {
-      res.status(404).json({ message: "Booking not found" });
-      return;
-    }
+    const booking = await ActivityModel.getBookingWithFullReport(bookingId);
+    if (!booking) { res.status(404).json({ message: "Booking not found" }); return; }
 
     const isAuthorized =
-      booking.parent.userId === userId ||
-      booking.babysitter.userId === userId ||
-      req.user!.role === "ADMIN";
+      booking.parent.userId === userId || booking.babysitter.userId === userId || req.user!.role === "ADMIN";
+    if (!isAuthorized) { res.status(403).json({ message: "Not authorized" }); return; }
 
-    if (!isAuthorized) {
-      res.status(403).json({ message: "Not authorized" });
-      return;
-    }
-
-    res.status(200).json({
-      success: true,
-      activities: booking.dailyReport?.activities || [],
-    });
+    res.status(200).json({ success: true, activities: booking.dailyReport?.activities || [] });
   } catch (error) {
     console.error("Get Activities Error:", error);
     res.status(500).json({ message: "Failed to get activities" });
@@ -228,39 +127,14 @@ export const deleteActivityLog = async (req: AuthRequest, res: Response): Promis
     const activityId = req.params.activityId as string;
     const userId = req.user!.id;
 
-    const activity = await prisma.activityLog.findUnique({
-      where: { id: activityId },
-      include: {
-        report: {
-          include: {
-            booking: {
-              include: {
-                babysitter: { include: { user: true } },
-              },
-            },
-          },
-        },
-      },
-    });
-
-    if (!activity) {
-      res.status(404).json({ message: "Activity not found" });
-      return;
-    }
-
+    const activity = await ActivityModel.findActivityWithBooking(activityId);
+    if (!activity) { res.status(404).json({ message: "Activity not found" }); return; }
     if (activity.report.booking.babysitter.userId !== userId) {
-      res.status(403).json({ message: "Not authorized" });
-      return;
+      res.status(403).json({ message: "Not authorized" }); return;
     }
 
-    await prisma.activityLog.delete({
-      where: { id: activity.id },
-    });
-
-    res.status(200).json({
-      success: true,
-      message: "Activity deleted successfully",
-    });
+    await ActivityModel.deleteActivity(activity.id);
+    res.status(200).json({ success: true, message: "Activity deleted successfully" });
   } catch (error) {
     console.error("Delete Activity Error:", error);
     res.status(500).json({ message: "Failed to delete activity" });

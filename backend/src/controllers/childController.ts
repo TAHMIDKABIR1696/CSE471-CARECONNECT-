@@ -1,5 +1,5 @@
 import { Response } from "express";
-import prisma from "../config/db.js";
+import * as ChildModel from "../models/childModel.js";
 import { AuthRequest } from "../types/index.js";
 
 // @desc    Add a new child
@@ -8,36 +8,19 @@ import { AuthRequest } from "../types/index.js";
 export const addChild = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { name, age, gender, specialNeeds, stubbornnessLvl, interests } = req.body;
-    const userId = req.user!.id;
 
-    const parentProfile = await prisma.parent.findUnique({
-      where: { userId },
-    });
-
+    const parentProfile = await ChildModel.getParentByUserId(req.user!.id);
     if (!parentProfile) {
-      res.status(404).json({
-        message: "Parent profile not found. Please complete your profile first.",
-      });
+      res.status(404).json({ message: "Parent profile not found. Please complete your profile first." });
       return;
     }
 
-    const newChild = await prisma.child.create({
-      data: {
-        parentId: parentProfile.id,
-        name,
-        age: parseInt(age),
-        gender,
-        specialNeeds,
-        stubbornnessLvl: parseInt(stubbornnessLvl),
-        interests,
-      },
+    const newChild = await ChildModel.create({
+      parentId: parentProfile.id, name, age: parseInt(age), gender,
+      specialNeeds, stubbornnessLvl: parseInt(stubbornnessLvl), interests,
     });
 
-    res.status(201).json({
-      success: true,
-      message: "Child added successfully!",
-      child: newChild,
-    });
+    res.status(201).json({ success: true, message: "Child added successfully!", child: newChild });
   } catch (error) {
     console.error("Add Child Error:", error);
     res.status(500).json({ message: "Server error while adding child." });
@@ -49,26 +32,11 @@ export const addChild = async (req: AuthRequest, res: Response): Promise<void> =
 // @access  Private (Parent Only)
 export const getMyChildren = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const userId = req.user!.id;
+    const parentProfile = await ChildModel.getParentByUserId(req.user!.id);
+    if (!parentProfile) { res.status(404).json({ message: "Parent profile not found." }); return; }
 
-    const parentProfile = await prisma.parent.findUnique({
-      where: { userId },
-    });
-
-    if (!parentProfile) {
-      res.status(404).json({ message: "Parent profile not found." });
-      return;
-    }
-
-    const children = await prisma.child.findMany({
-      where: { parentId: parentProfile.id },
-      orderBy: { id: "desc" },
-    });
-
-    res.status(200).json({
-      success: true,
-      children,
-    });
+    const children = await ChildModel.findByParentId(parentProfile.id);
+    res.status(200).json({ success: true, children });
   } catch (error) {
     console.error("Get Children Error:", error);
     res.status(500).json({ message: "Server error fetching children." });
@@ -80,12 +48,7 @@ export const getMyChildren = async (req: AuthRequest, res: Response): Promise<vo
 // @access  Private
 export const deleteChild = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const childId = req.params.id as string;
-
-    await prisma.child.delete({
-      where: { id: childId },
-    });
-
+    await ChildModel.remove(req.params.id as string);
     res.status(200).json({ success: true, message: "Child profile deleted." });
   } catch (error) {
     console.error("Delete Child Error:", error);
@@ -97,26 +60,12 @@ export const deleteChild = async (req: AuthRequest, res: Response): Promise<void
 // @route   PUT /api/children/:id
 export const updateChild = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const childId = req.params.id as string;
     const { name, age, gender, specialNeeds, stubbornnessLvl, interests } = req.body;
-
-    const updatedChild = await prisma.child.update({
-      where: { id: childId },
-      data: {
-        name,
-        age: parseInt(age),
-        gender,
-        specialNeeds,
-        stubbornnessLvl: parseInt(stubbornnessLvl),
-        interests,
-      },
+    const updatedChild = await ChildModel.update(req.params.id as string, {
+      name, age: parseInt(age), gender, specialNeeds,
+      stubbornnessLvl: parseInt(stubbornnessLvl), interests,
     });
-
-    res.status(200).json({
-      success: true,
-      message: "Child profile updated!",
-      child: updatedChild,
-    });
+    res.status(200).json({ success: true, message: "Child profile updated!", child: updatedChild });
   } catch (error) {
     console.error("Update Error:", error);
     res.status(500).json({ message: "Failed to update child." });

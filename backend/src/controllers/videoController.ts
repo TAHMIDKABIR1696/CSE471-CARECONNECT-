@@ -1,6 +1,6 @@
 import { Response } from "express";
-import prisma from "../config/db.js";
 import { v4 as uuidv4 } from "uuid";
+import * as VideoModel from "../models/videoModel.js";
 import { sendMeetingLinkEmail } from "../services/emailService.js";
 import { AuthRequest } from "../types/index.js";
 
@@ -20,57 +20,27 @@ export const createMeetingLink = async (req: AuthRequest, res: Response): Promis
     const { bookingId } = req.body;
     const userId = req.user!.id;
 
-    if (!bookingId) {
-      res.status(400).json({ message: "Booking ID is required" });
-      return;
-    }
+    if (!bookingId) { res.status(400).json({ message: "Booking ID is required" }); return; }
 
-    const booking = await prisma.booking.findUnique({
-      where: { id: bookingId },
-      include: {
-        parent: { include: { user: true } },
-        babysitter: { include: { user: true } },
-      },
-    });
-
-    if (!booking) {
-      res.status(404).json({ message: "Booking not found" });
-      return;
-    }
+    const booking = await VideoModel.findBookingWithUsers(bookingId);
+    if (!booking) { res.status(404).json({ message: "Booking not found" }); return; }
 
     const isAuthorized =
-      booking.parent.userId === userId ||
-      booking.babysitter.userId === userId ||
-      req.user!.role === "ADMIN";
-
-    if (!isAuthorized) {
-      res.status(403).json({ message: "Not authorized" });
-      return;
-    }
+      booking.parent.userId === userId || booking.babysitter.userId === userId || req.user!.role === "ADMIN";
+    if (!isAuthorized) { res.status(403).json({ message: "Not authorized" }); return; }
 
     let meetingLink = booking.meetingLink;
-
     if (!meetingLink) {
       meetingLink = generateMeetingLink(booking.id);
-      await prisma.booking.update({
-        where: { id: booking.id },
-        data: { meetingLink },
-      });
+      await VideoModel.saveMeetingLink(booking.id, meetingLink);
     }
 
     try {
       await sendMeetingLinkEmail(booking, meetingLink, booking.parent.user);
       await sendMeetingLinkEmail(booking, meetingLink, booking.babysitter.user);
-    } catch (emailError) {
-      console.error("Failed to send meeting link email:", emailError);
-    }
+    } catch (emailError) { console.error("Failed to send meeting link email:", emailError); }
 
-    res.status(200).json({
-      success: true,
-      message: "Meeting link created successfully",
-      meetingLink,
-      bookingId: booking.id,
-    });
+    res.status(200).json({ success: true, message: "Meeting link created successfully", meetingLink, bookingId: booking.id });
   } catch (error) {
     console.error("Create Meeting Link Error:", error);
     res.status(500).json({ message: "Failed to create meeting link" });
@@ -83,47 +53,22 @@ export const getMeetingLink = async (req: AuthRequest, res: Response): Promise<v
     const bookingId = req.params.bookingId as string;
     const userId = req.user!.id;
 
-    const booking = await prisma.booking.findUnique({
-      where: { id: bookingId },
-      include: {
-        parent: { include: { user: true } },
-        babysitter: { include: { user: true } },
-      },
-    });
-
-    if (!booking) {
-      res.status(404).json({ message: "Booking not found" });
-      return;
-    }
+    const booking = await VideoModel.findBookingWithUsers(bookingId);
+    if (!booking) { res.status(404).json({ message: "Booking not found" }); return; }
 
     const isAuthorized =
-      booking.parent.userId === userId ||
-      booking.babysitter.userId === userId ||
-      req.user!.role === "ADMIN";
-
-    if (!isAuthorized) {
-      res.status(403).json({ message: "Not authorized" });
-      return;
-    }
+      booking.parent.userId === userId || booking.babysitter.userId === userId || req.user!.role === "ADMIN";
+    if (!isAuthorized) { res.status(403).json({ message: "Not authorized" }); return; }
 
     let meetingLink = booking.meetingLink;
     if (!meetingLink) {
       meetingLink = generateMeetingLink(booking.id);
-      await prisma.booking.update({
-        where: { id: booking.id },
-        data: { meetingLink },
-      });
+      await VideoModel.saveMeetingLink(booking.id, meetingLink);
     }
 
     res.status(200).json({
-      success: true,
-      meetingLink,
-      booking: {
-        id: booking.id,
-        startTime: booking.startTime,
-        endTime: booking.endTime,
-        status: booking.status,
-      },
+      success: true, meetingLink,
+      booking: { id: booking.id, startTime: booking.startTime, endTime: booking.endTime, status: booking.status },
     });
   } catch (error) {
     console.error("Get Meeting Link Error:", error);
@@ -138,9 +83,7 @@ export const getStreamToken = async (req: AuthRequest, res: Response): Promise<v
     const token = `stream-token-${uuidv4()}`;
 
     res.status(200).json({
-      success: true,
-      token,
-      userId: userId.toString(),
+      success: true, token, userId: userId.toString(),
       apiKey: process.env.STREAM_API_KEY || "",
     });
   } catch (error) {

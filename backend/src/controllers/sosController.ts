@@ -1,5 +1,5 @@
 import { Response } from "express";
-import prisma from "../config/db.js";
+import * as SosModel from "../models/sosModel.js";
 import { AuthRequest } from "../types/index.js";
 
 /**
@@ -13,29 +13,11 @@ export const createSOSAlert = async (req: AuthRequest, res: Response): Promise<v
     const userId = req.user!.id;
 
     if (!latitude || !longitude) {
-      res.status(400).json({ message: "Latitude and longitude are required" });
-      return;
+      res.status(400).json({ message: "Latitude and longitude are required" }); return;
     }
 
-    const sosAlert = await prisma.sOSAlert.create({
-      data: {
-        userId,
-        latitude: parseFloat(latitude),
-        longitude: parseFloat(longitude),
-        status: "ACTIVE",
-      },
-      include: {
-        user: {
-          select: { id: true, name: true, email: true, phoneNumber: true },
-        },
-      },
-    });
-
-    res.status(201).json({
-      success: true,
-      message: "SOS alert created successfully",
-      alert: sosAlert,
-    });
+    const sosAlert = await SosModel.create(userId, parseFloat(latitude), parseFloat(longitude));
+    res.status(201).json({ success: true, message: "SOS alert created successfully", alert: sosAlert });
   } catch (error) {
     console.error("Create SOS Alert Error:", error);
     res.status(500).json({ message: "Failed to create SOS alert" });
@@ -48,33 +30,12 @@ export const getActiveAlerts = async (req: AuthRequest, res: Response): Promise<
     const userId = req.user!.id;
     const role = req.user!.role;
 
-    let alerts;
-
-    if (role === "ADMIN") {
-      alerts = await prisma.sOSAlert.findMany({
-        where: { status: "ACTIVE" },
-        include: {
-          user: {
-            select: { id: true, name: true, email: true, phoneNumber: true, profilePicture: true },
-          },
-        },
-        orderBy: { createdAt: "desc" },
-      });
-    } else {
-      alerts = await prisma.sOSAlert.findMany({
-        where: { userId },
-        include: {
-          user: {
-            select: { id: true, name: true, email: true, phoneNumber: true },
-          },
-        },
-        orderBy: { createdAt: "desc" },
-      });
-    }
+    const alerts = role === "ADMIN"
+      ? await SosModel.findAllActive()
+      : await SosModel.findByUserId(userId);
 
     res.status(200).json({
-      success: true,
-      alerts,
+      success: true, alerts,
       activeCount: alerts.filter((a) => a.status === "ACTIVE").length,
     });
   } catch (error) {
@@ -90,38 +51,14 @@ export const resolveAlert = async (req: AuthRequest, res: Response): Promise<voi
     const userId = req.user!.id;
     const role = req.user!.role;
 
-    const alert = await prisma.sOSAlert.findUnique({
-      where: { id: alertId },
-    });
-
-    if (!alert) {
-      res.status(404).json({ message: "Alert not found" });
-      return;
-    }
-
+    const alert = await SosModel.findById(alertId);
+    if (!alert) { res.status(404).json({ message: "Alert not found" }); return; }
     if (role !== "ADMIN" && alert.userId !== userId) {
-      res.status(403).json({ message: "Not authorized" });
-      return;
+      res.status(403).json({ message: "Not authorized" }); return;
     }
 
-    const updatedAlert = await prisma.sOSAlert.update({
-      where: { id: alert.id },
-      data: {
-        status: "RESOLVED",
-        resolvedAt: new Date(),
-      },
-      include: {
-        user: {
-          select: { id: true, name: true, email: true },
-        },
-      },
-    });
-
-    res.status(200).json({
-      success: true,
-      message: "Alert resolved successfully",
-      alert: updatedAlert,
-    });
+    const updatedAlert = await SosModel.resolve(alert.id);
+    res.status(200).json({ success: true, message: "Alert resolved successfully", alert: updatedAlert });
   } catch (error) {
     console.error("Resolve Alert Error:", error);
     res.status(500).json({ message: "Failed to resolve alert" });
@@ -135,23 +72,10 @@ export const getAlertById = async (req: AuthRequest, res: Response): Promise<voi
     const userId = req.user!.id;
     const role = req.user!.role;
 
-    const alert = await prisma.sOSAlert.findUnique({
-      where: { id },
-      include: {
-        user: {
-          select: { id: true, name: true, email: true, phoneNumber: true, profilePicture: true },
-        },
-      },
-    });
-
-    if (!alert) {
-      res.status(404).json({ message: "Alert not found" });
-      return;
-    }
-
+    const alert = await SosModel.findByIdWithUser(id);
+    if (!alert) { res.status(404).json({ message: "Alert not found" }); return; }
     if (role !== "ADMIN" && alert.userId !== userId) {
-      res.status(403).json({ message: "Not authorized" });
-      return;
+      res.status(403).json({ message: "Not authorized" }); return;
     }
 
     res.status(200).json({ success: true, alert });

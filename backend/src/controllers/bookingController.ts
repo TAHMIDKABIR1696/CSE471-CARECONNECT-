@@ -1,5 +1,5 @@
 import { Response } from "express";
-import prisma from "../config/db.js";
+import * as BookingModel from "../models/bookingModel.js";
 import { sendBookingRequestEmail } from "../services/emailService.js";
 import { AuthRequest } from "../types/index.js";
 
@@ -12,91 +12,44 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
     const { babysitterId, startTime, endTime } = req.body;
 
     if (!babysitterId || !startTime || !endTime) {
-      res.status(400).json({ message: "Missing required fields" });
-      return;
+      res.status(400).json({ message: "Missing required fields" }); return;
     }
 
-    const parent = await prisma.parent.findUnique({
-      where: { userId },
-    });
-
+    const parent = await BookingModel.getParent(userId);
     if (!parent) {
-      res.status(404).json({
-        message: "Please complete your Parent Profile first in Settings.",
-      });
-      return;
+      res.status(404).json({ message: "Please complete your Parent Profile first in Settings." }); return;
     }
 
-    // Try to find by babysitter profile ID first
-    let sitter = await prisma.babysitter.findUnique({
-      where: { id: babysitterId },
-    });
-
-    // If not found, try to find by user ID
-    if (!sitter) {
-      sitter = await prisma.babysitter.findUnique({
-        where: { userId: babysitterId },
-      });
-    }
-
-    if (!sitter) {
-      res.status(404).json({ message: "Babysitter not found." });
-      return;
-    }
+    const sitter = await BookingModel.findSitter(babysitterId);
+    if (!sitter) { res.status(404).json({ message: "Babysitter not found." }); return; }
 
     const start = new Date(startTime);
     const end = new Date(endTime);
-
     if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-      res.status(400).json({ message: "Invalid date format" });
-      return;
+      res.status(400).json({ message: "Invalid date format" }); return;
     }
 
     const durationHours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+    if (durationHours <= 0) { res.status(400).json({ message: "End time must be after start time." }); return; }
 
-    if (durationHours <= 0) {
-      res.status(400).json({ message: "End time must be after start time." });
-      return;
-    }
+    const totalCost = durationHours * parseFloat(sitter.hourlyRate.toString());
 
-    const rate = parseFloat(sitter.hourlyRate.toString());
-    const totalCost = durationHours * rate;
-
-    const booking = await prisma.booking.create({
-      data: {
-        parentId: parent.id,
-        babysitterId: sitter.id,
-        startTime: start,
-        endTime: end,
-        totalAmount: totalCost,
-        status: "PENDING",
-      },
+    const booking = await BookingModel.create({
+      parentId: parent.id, babysitterId: sitter.id,
+      startTime: start, endTime: end, totalAmount: totalCost, status: "PENDING",
     });
 
-    // Send booking request email to babysitter
     try {
-      const sitterUser = await prisma.user.findUnique({
-        where: { id: sitter.userId },
-      });
-      if (sitterUser) {
-        await sendBookingRequestEmail(booking, sitterUser);
-      }
-    } catch (emailError) {
-      console.error("Failed to send booking email:", emailError);
-    }
+      const sitterUser = await BookingModel.getSitterUser(sitter.userId);
+      if (sitterUser) await sendBookingRequestEmail(booking, sitterUser);
+    } catch (emailError) { console.error("Failed to send booking email:", emailError); }
 
-    res.status(201).json({
-      success: true,
-      message: "Booking request sent successfully!",
-      booking,
-    });
+    res.status(201).json({ success: true, message: "Booking request sent successfully!", booking });
   } catch (error) {
     console.error("CRITICAL BOOKING ERROR:", error);
     res.status(500).json({
       message: "Failed to create booking. Check server logs.",
-      error: process.env.NODE_ENV === "development" && error instanceof Error
-        ? error.message
-        : undefined,
+      error: process.env.NODE_ENV === "development" && error instanceof Error ? error.message : undefined,
     });
   }
 };
@@ -108,70 +61,18 @@ export const getMyBookings = async (req: AuthRequest, res: Response): Promise<vo
   try {
     const userId = req.user!.id;
     const role = req.user!.role;
-
     let bookings: unknown[] = [];
 
     if (role === "PARENT") {
-      const parent = await prisma.parent.findUnique({ where: { userId } });
-      if (!parent) {
-        res.status(200).json({ success: true, bookings: [] });
-        return;
-      }
-
-      bookings = await prisma.booking.findMany({
-        where: { parentId: parent.id },
-        include: {
-          babysitter: {
-            include: { user: { select: { name: true, email: true } } },
-          },
-          payment: {
-            select: { id: true, status: true, transactionId: true },
-          },
-          review: {
-            select: { id: true, rating: true },
-          },
-        },
-        orderBy: { createdAt: "desc" },
-      });
+      const parent = await BookingModel.getParent(userId);
+      if (!parent) { res.status(200).json({ success: true, bookings: [] }); return; }
+      bookings = await BookingModel.findByParent(parent.id);
     } else if (role === "BABYSITTER") {
-      const sitter = await prisma.babysitter.findUnique({ where: { userId } });
-      if (!sitter) {
-        res.status(200).json({ success: true, bookings: [] });
-        return;
-      }
-
-      bookings = await prisma.booking.findMany({
-        where: { babysitterId: sitter.id },
-        include: {
-          parent: {
-            include: {
-              user: { select: { name: true, email: true, phoneNumber: true } },
-            },
-          },
-          payment: {
-            select: { id: true, status: true, transactionId: true },
-          },
-          review: {
-            select: { id: true, rating: true },
-          },
-        },
-        orderBy: { createdAt: "desc" },
-      });
+      const sitter = await BookingModel.findSitter(userId);
+      if (!sitter) { res.status(200).json({ success: true, bookings: [] }); return; }
+      bookings = await BookingModel.findBySitter(sitter.id);
     } else if (role === "ADMIN") {
-      bookings = await prisma.booking.findMany({
-        include: {
-          parent: {
-            include: { user: { select: { name: true, email: true } } },
-          },
-          babysitter: {
-            include: { user: { select: { name: true, email: true } } },
-          },
-          payment: {
-            select: { id: true, status: true, transactionId: true },
-          },
-        },
-        orderBy: { createdAt: "desc" },
-      });
+      bookings = await BookingModel.findAll();
     }
 
     res.status(200).json({ success: true, bookings: bookings || [] });
@@ -189,46 +90,27 @@ export const updateBookingStatus = async (req: AuthRequest, res: Response): Prom
     const { status } = req.body as { status: string };
     const userId = req.user!.id;
 
-    const booking = await prisma.booking.findUnique({
-      where: { id: bookingId },
-      include: { babysitter: true, parent: true },
-    });
-
-    if (!booking) {
-      res.status(404).json({ message: "Booking not found" });
-      return;
-    }
+    const booking = await BookingModel.findByIdWithUsers(bookingId);
+    if (!booking) { res.status(404).json({ message: "Booking not found" }); return; }
 
     const isSitter = booking.babysitter.userId === userId;
     const isParent = booking.parent.userId === userId;
-
     if (!isSitter && !isParent) {
-      res.status(403).json({ message: "Not authorized to update this booking." });
-      return;
+      res.status(403).json({ message: "Not authorized to update this booking." }); return;
     }
 
-    const updatedBooking = await prisma.booking.update({
-      where: { id: bookingId },
-      data: { status: status as "PENDING" | "CONFIRMED" | "REJECTED" | "CANCELLED" | "LIVE" | "COMPLETED" },
-      include: {
-        parent: { include: { user: true } },
-        babysitter: { include: { user: true } },
-      },
-    });
+    const updatedBooking = await BookingModel.updateStatus(
+      bookingId,
+      status as "PENDING" | "CONFIRMED" | "REJECTED" | "CANCELLED" | "LIVE" | "COMPLETED"
+    );
 
     try {
       if (status === "CONFIRMED") {
         await sendBookingRequestEmail(updatedBooking, updatedBooking.parent.user);
       }
-    } catch (emailError) {
-      console.error("Failed to send status update email:", emailError);
-    }
+    } catch (emailError) { console.error("Failed to send status update email:", emailError); }
 
-    res.status(200).json({
-      success: true,
-      message: `Booking ${status.toLowerCase()}`,
-      booking: updatedBooking,
-    });
+    res.status(200).json({ success: true, message: `Booking ${status.toLowerCase()}`, booking: updatedBooking });
   } catch (error) {
     console.error("Update Booking Error:", error);
     res.status(500).json({ message: "Update failed" });
