@@ -198,7 +198,7 @@ export default function AIMatchingPage() {
                     Match Breakdown
                   </h4>
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-1">
+                    {/* <div className="space-y-1">
                       <div className="flex justify-between text-xs">
                         <span className="text-slate-600">Location</span>
                         <span className="font-bold text-slate-900">
@@ -212,9 +212,9 @@ export default function AIMatchingPage() {
                             width: `${factorScores.location * 100}%`,
                           }}
                         />
-                      </div>
-                    </div>
-                    <div className="space-y-1">
+                      </div> */}
+                    {/* </div> */}
+                    {/* <div className="space-y-1">
                       <div className="flex justify-between text-xs">
                         <span className="text-slate-600">Availability</span>
                         <span className="font-bold text-slate-900">
@@ -229,7 +229,7 @@ export default function AIMatchingPage() {
                           }}
                         />
                       </div>
-                    </div>
+                    </div> */}
                     <div className="space-y-1">
                       <div className="flex justify-between text-xs">
                         <span className="text-slate-600">Budget</span>
