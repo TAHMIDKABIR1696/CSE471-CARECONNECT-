@@ -74,9 +74,12 @@ export default function AIMatchingPage() {
         setMatches(response.data.matches);
         toast.success(`Found ${response.data.matches.length} perfect matches!`);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error fetching matches:", error);
-      toast.error(error.response?.data?.message || "Failed to fetch matches");
+      const message = axios.isAxiosError(error)
+        ? error.response?.data?.message || "Failed to fetch matches"
+        : "Failed to fetch matches";
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -104,9 +107,9 @@ export default function AIMatchingPage() {
           </h1>
         </div>
         <p className="text-slate-600 max-w-2xl mx-auto">
-          Our intelligent 7-factor matching algorithm analyzes location,
-          availability, budget, personality, experience, and ratings to find
-          your perfect babysitter match.
+          Our data-driven matching algorithm analyzes your real profile values
+          like location, availability, budget, child needs, experience, and
+          verified ratings to find your best babysitter matches.
         </p>
         <div className="flex items-center justify-center gap-2 text-sm text-purple-600 font-bold">
           <TrendingUp className="h-4 w-4" />
@@ -127,7 +130,7 @@ export default function AIMatchingPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {matches.map((match, index) => {
+          {matches.map((match) => {
             const { sitter, matchScore, factorScores } = match;
             const matchPercentage = Math.round(matchScore * 100);
 
@@ -327,4 +330,3 @@ export default function AIMatchingPage() {
     </div>
   );
 }
-

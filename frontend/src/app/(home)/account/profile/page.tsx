@@ -5,7 +5,6 @@ import Link from "next/link";
 import axios from "axios";
 import { useAuth } from "@/hooks/use-auth";
 import {
-  User,
   MapPin,
   Phone,
   Mail,
@@ -18,9 +17,38 @@ import {
   Loader2,
 } from "lucide-react";
 
+interface IParentProfile {
+  locationAddress?: string | null;
+  situation?: string | null;
+  minBudget?: number | null;
+  maxBudget?: number | null;
+  requiredDays?: string | null;
+  children?: Array<{ id: string }>;
+}
+
+interface ISitterProfile {
+  locationAddress?: string | null;
+  bio?: string | null;
+  experienceYears?: number | null;
+  hourlyRate?: number | null;
+  averageRating?: number | null;
+  totalRatings?: number | null;
+}
+
+interface IUserProfile {
+  name: string;
+  email: string;
+  role: "PARENT" | "BABYSITTER" | "ADMIN";
+  phoneNumber?: string | null;
+  createdAt: string;
+  isApproved: boolean;
+  parentProfile?: IParentProfile | null;
+  babysitter?: ISitterProfile | null;
+}
+
 export default function ProfileViewPage() {
-  const { user, isAuthenticated } = useAuth();
-  const [profileData, setProfileData] = useState<any>(null);
+  const { isAuthenticated } = useAuth();
+  const [profileData, setProfileData] = useState<IUserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -34,7 +62,7 @@ export default function ProfileViewPage() {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-        setProfileData(response.data.user);
+        setProfileData(response.data.user as IUserProfile);
       } catch (error) {
         console.error("Error", error);
       } finally {
@@ -54,6 +82,12 @@ export default function ProfileViewPage() {
 
   const isParent = profileData.role === "PARENT";
   const details = isParent ? profileData.parentProfile : profileData.babysitter;
+  const profileRating = !isParent
+    ? Number(details?.averageRating || 0).toFixed(1)
+    : "N/A";
+  const profileRatingMeta = !isParent
+    ? `Based on ${details?.totalRatings || 0} reviews`
+    : `${details?.children?.length || 0} child profile(s) linked`;
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -131,12 +165,17 @@ export default function ProfileViewPage() {
           <div className="bg-purple-50 p-6 rounded-2xl border border-purple-100">
             <div className="flex items-center gap-2 mb-2">
               <Star className="h-5 w-5 text-purple-600" />
-              <span className="font-bold text-purple-800">Rating</span>
+              <span className="font-bold text-purple-800">
+                {isParent ? "Family Profile" : "Rating"}
+              </span>
             </div>
             <div className="text-3xl font-bold text-purple-900">
-              0.0 <span className="text-sm font-normal text-purple-600">/ 5</span>
+              {profileRating}
+              {!isParent && (
+                <span className="text-sm font-normal text-purple-600">/ 5</span>
+              )}
             </div>
-            <p className="text-xs text-purple-600 mt-1">Based on 0 reviews</p>
+            <p className="text-xs text-purple-600 mt-1">{profileRatingMeta}</p>
           </div>
         </div>
 
@@ -178,6 +217,14 @@ export default function ProfileViewPage() {
                   </span>
                   <div className="text-xl font-bold text-slate-800 mt-1">
                     {details?.maxBudget ? `৳${details.maxBudget}` : "N/A"}
+                  </div>
+                </div>
+                <div className="bg-white p-5 rounded-2xl border border-slate-100 col-span-2">
+                  <span className="text-xs font-bold text-slate-400 uppercase">
+                    Required Days
+                  </span>
+                  <div className="text-sm font-semibold text-slate-700 mt-1">
+                    {details?.requiredDays || "Not set"}
                   </div>
                 </div>
               </>

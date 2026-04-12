@@ -1,5 +1,26 @@
 import prisma from "../config/db.js";
 
+const parseOptionalNumber = (value: unknown): number | null => {
+  if (value === null || value === undefined || value === "") return null;
+  const parsed = typeof value === "number" ? value : parseFloat(String(value));
+  return Number.isFinite(parsed) ? parsed : null;
+};
+
+const normalizeRequiredDays = (value: unknown): string | null => {
+  const rawDays = Array.isArray(value)
+    ? value.map((day) => String(day))
+    : typeof value === "string"
+      ? value.split(",")
+      : [];
+
+  const normalized = rawDays
+    .map((day) => day.trim().toUpperCase())
+    .filter((day) => day.length > 0);
+
+  if (normalized.length === 0) return null;
+  return Array.from(new Set(normalized)).join(",");
+};
+
 // ── Find user by email ──
 export const findByEmail = (email: string) =>
   prisma.user.findUnique({ where: { email } });
@@ -79,6 +100,14 @@ export const updateProfile = (
   role: string,
   data: Record<string, unknown>
 ) => {
+  const minBudget = parseOptionalNumber(data.minBudget) ?? 0;
+  const maxBudget = parseOptionalNumber(data.maxBudget) ?? 0;
+  const experienceYears = parseOptionalNumber(data.experienceYears) ?? 0;
+  const hourlyRate = parseOptionalNumber(data.hourlyRate) ?? 0;
+  const latitude = parseOptionalNumber(data.latitude);
+  const longitude = parseOptionalNumber(data.longitude);
+  const requiredDays = normalizeRequiredDays(data.requiredDays);
+
   const updateData: Record<string, unknown> = {
     name: data.name,
     phoneNumber: data.phone,
@@ -89,8 +118,11 @@ export const updateProfile = (
     updateData.parentProfile = {
       update: {
         locationAddress: data.location,
-        minBudget: parseFloat(data.minBudget as string) || 0,
-        maxBudget: parseFloat(data.maxBudget as string) || 0,
+        minBudget,
+        maxBudget,
+        latitude,
+        longitude,
+        requiredDays,
         situation: data.situation,
       },
     };
@@ -99,8 +131,10 @@ export const updateProfile = (
       update: {
         locationAddress: data.location,
         bio: data.bio,
-        experienceYears: parseInt(data.experienceYears as string) || 0,
-        hourlyRate: parseFloat(data.hourlyRate as string) || 0,
+        experienceYears: Math.max(0, Math.round(experienceYears)),
+        hourlyRate,
+        latitude,
+        longitude,
       },
     };
   }

@@ -8,7 +8,6 @@ import { useAuth } from "@/hooks/use-auth";
 import {
   User,
   MapPin,
-  DollarSign,
   Briefcase,
   Loader2,
   Save,
@@ -16,6 +15,7 @@ import {
   Settings as SettingsIcon,
   Navigation,
   Info,
+  CalendarDays,
 } from "lucide-react";
 
 // ✅ Type Safety: Input Interface
@@ -27,6 +27,7 @@ interface IProfileInput {
   minBudget?: number;
   maxBudget?: number;
   situation?: string;
+  requiredDays?: string;
   // Sitter fields
   bio?: string;
   experienceYears?: number;
@@ -40,14 +41,27 @@ export default function SettingsPage() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const [isSaving, setIsSaving] = useState(false);
   const [isLocating, setIsLocating] = useState(false);
+  const dayOptions = [
+    "MONDAY",
+    "TUESDAY",
+    "WEDNESDAY",
+    "THURSDAY",
+    "FRIDAY",
+    "SATURDAY",
+    "SUNDAY",
+  ] as const;
 
   const {
     register,
     handleSubmit,
     setValue,
     watch,
-    formState: { errors },
   } = useForm<IProfileInput>();
+
+  const selectedRequiredDays = (watch("requiredDays") || "")
+    .split(",")
+    .map((day) => day.trim().toUpperCase())
+    .filter(Boolean);
 
   // 🌐 GPS: Get Current Location
   const handleGetLocation = () => {
@@ -70,6 +84,13 @@ export default function SettingsPage() {
         setIsLocating(false);
       }
     );
+  };
+
+  const toggleRequiredDay = (day: string) => {
+    const selected = new Set(selectedRequiredDays);
+    if (selected.has(day)) selected.delete(day);
+    else selected.add(day);
+    setValue("requiredDays", Array.from(selected).join(","), { shouldDirty: true });
   };
 
   // 📥 Load Data from Backend
@@ -98,6 +119,9 @@ export default function SettingsPage() {
           setValue("minBudget", data.parentProfile.minBudget);
           setValue("maxBudget", data.parentProfile.maxBudget);
           setValue("situation", data.parentProfile.situation || "");
+          setValue("requiredDays", data.parentProfile.requiredDays || "");
+          setValue("latitude", data.parentProfile.latitude);
+          setValue("longitude", data.parentProfile.longitude);
         } else if (data.role === "BABYSITTER" && data.babysitter) {
           // Note: Backend-এ 'babysitter' টেবিল চেক করবেন
           setValue("location", data.babysitter.locationAddress || "");
@@ -121,9 +145,19 @@ export default function SettingsPage() {
     setIsSaving(true);
     try {
       const token = localStorage.getItem("token");
+      const cleanedRequiredDays = (formData.requiredDays || "")
+        .split(",")
+        .map((day) => day.trim().toUpperCase())
+        .filter(Boolean)
+        .join(",");
+      const payload = {
+        ...formData,
+        requiredDays: cleanedRequiredDays,
+      };
+
       const response = await axios.put(
         "http://localhost:5000/api/user/update-profile",
-        formData,
+        payload,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -228,6 +262,7 @@ export default function SettingsPage() {
               <h3 className="font-bold text-slate-700 text-sm flex items-center gap-2">
                 <Info className="h-4 w-4 text-blue-500" /> Parent Preferences
               </h3>
+              <input type="hidden" {...register("requiredDays")} />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-slate-500 uppercase">
@@ -259,6 +294,78 @@ export default function SettingsPage() {
                     placeholder="Describe your children or any special needs..."
                     className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:ring-2 focus:ring-purple-500 outline-none"
                   />
+                </div>
+
+                <div className="md:col-span-2 space-y-3">
+                  <label className="text-xs font-bold text-slate-500 uppercase flex items-center gap-2">
+                    <CalendarDays className="h-3.5 w-3.5" />
+                    Required Care Days
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {dayOptions.map((day) => {
+                      const isSelected = selectedRequiredDays.includes(day);
+                      return (
+                        <button
+                          type="button"
+                          key={day}
+                          onClick={() => toggleRequiredDay(day)}
+                          className={`px-3 py-2 rounded-xl text-xs font-bold border transition-colors ${
+                            isSelected
+                              ? "bg-purple-600 border-purple-600 text-white"
+                              : "bg-white border-slate-200 text-slate-600 hover:border-purple-300"
+                          }`}
+                        >
+                          {day.slice(0, 3)}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <p className="text-xs text-slate-400">
+                    Selected: {selectedRequiredDays.length > 0 ? selectedRequiredDays.join(", ") : "None"}
+                  </p>
+                </div>
+
+                <div className="md:col-span-2 bg-purple-50/50 p-6 rounded-2xl border border-purple-100 space-y-4">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <h4 className="font-bold text-purple-900 text-sm">Family Location</h4>
+                      <p className="text-xs text-purple-600">
+                        Use your current GPS location for more accurate distance matching.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleGetLocation}
+                      disabled={isLocating}
+                      className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-purple-700 transition-all shadow-md shadow-purple-100"
+                    >
+                      {isLocating ? (
+                        <Loader2 className="animate-spin h-3.5 w-3.5" />
+                      ) : (
+                        <Navigation className="h-3.5 w-3.5" />
+                      )}
+                      {isLocating ? "Locating..." : "Get Live GPS"}
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold text-purple-700 uppercase">Latitude</label>
+                      <input
+                        {...register("latitude")}
+                        readOnly
+                        className="w-full bg-white border border-purple-100 p-2 rounded-lg text-xs text-slate-600 outline-none"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold text-purple-700 uppercase">Longitude</label>
+                      <input
+                        {...register("longitude")}
+                        readOnly
+                        className="w-full bg-white border border-purple-100 p-2 rounded-lg text-xs text-slate-600 outline-none"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

@@ -343,8 +343,11 @@ if (pm.response.code === 200) {
   "name": "Sarah Johnson",
   "phone": "01712345678",
   "location": "Gulshan-2, Dhaka",
+  "latitude": 23.7925,
+  "longitude": 90.4078,
   "minBudget": 300,
   "maxBudget": 800,
+  "requiredDays": "MONDAY,WEDNESDAY,FRIDAY",
   "situation": "Working parent, needs weekday care"
 }
 ```
@@ -360,8 +363,11 @@ if (pm.response.code === 200) {
     "phoneNumber": "01712345678",
     "parentProfile": {
       "locationAddress": "Gulshan-2, Dhaka",
+      "latitude": 23.7925,
+      "longitude": 90.4078,
       "minBudget": 300,
       "maxBudget": 800,
+      "requiredDays": "MONDAY,WEDNESDAY,FRIDAY",
       "situation": "Working parent, needs weekday care"
     }
   }
@@ -626,7 +632,9 @@ if (pm.response.code === 200) {
   "bio": "Experienced babysitter with 4 years of childcare experience. First Aid & CPR certified. Great with toddlers and special needs children.",
   "experienceYears": 4,
   "hourlyRate": 500,
-  "location": "Dhanmondi-27, Dhaka"
+  "location": "Dhanmondi-27, Dhaka",
+  "latitude": 23.7464,
+  "longitude": 90.3760
 }
 ```
 
@@ -643,7 +651,9 @@ if (pm.response.code === 200) {
       "bio": "Experienced babysitter with 4 years...",
       "experienceYears": 4,
       "hourlyRate": 500,
-      "locationAddress": "Dhanmondi-27, Dhaka"
+      "locationAddress": "Dhanmondi-27, Dhaka",
+      "latitude": 23.7464,
+      "longitude": 90.3760
     }
   }
 }
@@ -1228,7 +1238,7 @@ Below is the exact file path for every test's **Route → Controller → Model**
 | **Route**      | `backend/src/routes/sitterRoutes.ts`          | `GET /me` — `protect` middleware             |
 | **Controller** | `backend/src/controllers/sitterController.ts` | `getMySitterProfile` function                |
 | **Model**      | `backend/src/models/sitterModel.ts`           | `findByUserIdWithDetails()` — includes user info, certifications, availabilities |
-| *(update uses same files as Test 6)* | `userController.ts` → `userModel.ts` | `updateProfile()` handles BABYSITTER role fields (bio, hourlyRate, experienceYears) |
+| *(update uses same files as Test 6)* | `userController.ts` → `userModel.ts` | `updateProfile()` handles BABYSITTER role fields (bio, hourlyRate, experienceYears, latitude, longitude) |
 
 #### Tests 13–14: Set & Get Availability
 
@@ -1524,4 +1534,3 @@ The admin can see the full picture: who booked whom.
     ]
   }
   ```
-

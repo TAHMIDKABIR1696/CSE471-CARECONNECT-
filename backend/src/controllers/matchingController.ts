@@ -1,10 +1,10 @@
 import { Response } from "express";
 import * as MatchingModel from "../models/matchingModel.js";
-import { computeMatch, MATCH_THRESHOLD } from "../services/matchingService.js";
+import { buildMatchContext, computeMatch } from "../services/matchingService.js";
 import { AuthRequest } from "../types/index.js";
 
 /**
- * Intelligent AI Matching Algorithm - 7-Factor Smart Matching System
+ * Intelligent matching powered by live profile data and dynamic scoring.
  */
 
 // Main Matching Function
@@ -17,10 +17,10 @@ export const findMatchingSitters = async (req: AuthRequest, res: Response): Prom
     }
 
     const allSitters = await MatchingModel.getApprovedSitters();
+    const context = buildMatchContext(parent, allSitters);
 
     const matches = allSitters
-      .map((sitter) => computeMatch(parent, sitter))
-      .filter((match) => match.matchScore > MATCH_THRESHOLD)
+      .map((sitter) => computeMatch(parent, sitter, context))
       .sort((a, b) => b.matchScore - a.matchScore);
 
     res.status(200).json({ success: true, matches, totalMatches: matches.length });
