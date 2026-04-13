@@ -1,0 +1,427 @@
+// 1. Configuration
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+// --------------------------------------
+// Enums (Type Safety for Statuses)
+// --------------------------------------
+
+enum Role {
+  ADMIN
+  PARENT
+  BABYSITTER
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  REJECTED
+  CANCELLED
+  LIVE
+  COMPLETED
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum SenderType {
+  USER
+  BOT
+}
+
+enum AlertStatus {
+  ACTIVE
+  RESOLVED
+}
+
+enum LiveSessionStatus {
+  ACTIVE
+  PAUSED
+  COMPLETED
+  CANCELLED
+}
+
+enum NotificationType {
+  BOOKING
+  SESSION
+  PAYMENT
+  SOS
+  MESSAGE
+  SYSTEM
+}
+
+// --------------------------------------
+// 1. User & Authentication
+// --------------------------------------
+
+model User {
+  id             String      @id @default(auto()) @map("_id") @db.ObjectId
+  name           String?
+  email          String      @unique
+  password       String
+  role           Role
+  address        String?
+  mobile         String?
+  image          String?
+  isApproved     Boolean     @default(false)
+  isVerified     Boolean     @default(false)
+  profilePicture String?
+  phoneNumber    String?
+  isBanned       Boolean     @default(false)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  parentProfile   Parent?
+  babysitter      Babysitter?
+  sentMessages    Message[]
+  reviewsGiven    Review[]    @relation("GivenReviews")
+  reviewsReceived Review[]    @relation("ReceivedReviews")
+  sosAlerts       SOSAlert[]
+  adminLogs       AdminLog[]
+  notifications   Notification[]
+}
+
+// --------------------------------------
+// 2. Parent Management
+// --------------------------------------
+
+model Parent {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String @unique @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  locationAddress String?
+  latitude        Float?
+  longitude       Float?
+  situation       String?
+
+  minBudget    Float   @default(0.0)
+  maxBudget    Float   @default(0.0)
+  requiredDays String?
+
+  children Child[]
+  bookings Booking[]
+}
+
+model Child {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  parentId String @db.ObjectId
+  parent   Parent @relation(fields: [parentId], references: [id], onDelete: Cascade)
+
+  name         String
+  age          Int
+  gender       String?
+  specialNeeds String?
+
+  stubbornnessLvl Int     @default(1)
+  interests       String?
+}
+
+// --------------------------------------
+// 3. Babysitter Management
+// --------------------------------------
+
+model Babysitter {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String @unique @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  bio             String?
+  experienceYears Int     @default(0)
+  hourlyRate      Float   @default(0.0)
+
+  locationAddress String?
+  latitude        Float?
+  longitude       Float?
+
+  averageRating Float   @default(0.0)
+  totalRatings  Int     @default(0)
+  badges        String?
+
+  certifications Certification[]
+  availabilities Availability[]
+  bookings       Booking[]
+}
+
+model Certification {
+  id           String     @id @default(auto()) @map("_id") @db.ObjectId
+  babysitterId String     @db.ObjectId
+  babysitter   Babysitter @relation(fields: [babysitterId], references: [id], onDelete: Cascade)
+  title        String
+  documentUrl  String
+  issuedBy     String?
+  issueDate    DateTime?
+}
+
+model Availability {
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  dayOfWeek   String
+  startTime   String
+  endTime     String
+  isAvailable Boolean @default(true)
+
+  babysitterId String     @db.ObjectId
+  babysitter   Babysitter @relation(fields: [babysitterId], references: [id], onDelete: Cascade)
+}
+
+// --------------------------------------
+// 5. Booking & 6. Live Session
+// --------------------------------------
+
+model Booking {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  parentId     String     @db.ObjectId
+  parent       Parent     @relation(fields: [parentId], references: [id])
+  babysitterId String     @db.ObjectId
+  babysitter   Babysitter @relation(fields: [babysitterId], references: [id])
+
+  startTime DateTime
+  endTime   DateTime
+  status    BookingStatus @default(PENDING)
+
+  meetingLink String?
+
+  actualStart DateTime?
+  actualEnd   DateTime?
+  gpsLogs     Json?
+
+  totalAmount Float @default(0.0)
+
+  payment      Payment?
+  review       Review?
+  dailyReport  DailyReport?
+  conversation Conversation?
+  liveSession  LiveSession?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// --------------------------------------
+// Live Session (from SQL: live_sessions)
+// --------------------------------------
+
+model LiveSession {
+  id        String            @id @default(auto()) @map("_id") @db.ObjectId
+  bookingId String            @unique @db.ObjectId
+  booking   Booking           @relation(fields: [bookingId], references: [id])
+
+  babysitterId String
+  parentId     String
+
+  startTime          DateTime          @default(now())
+  endTime            DateTime?
+  status             LiveSessionStatus @default(ACTIVE)
+  currentLatitude    Float?
+  currentLongitude   Float?
+  homeLatitude       Float?
+  homeLongitude      Float?
+  geofenceRadiusMeters Int              @default(500)
+  locationUpdates    Json?
+  totalDistanceKm    Float             @default(0.0)
+  geofenceViolations Int               @default(0)
+  lastUpdate         DateTime          @default(now()) @updatedAt
+}
+
+// --------------------------------------
+// 7. Messaging
+// --------------------------------------
+
+model Conversation {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  bookingId String?  @unique @db.ObjectId
+  booking   Booking? @relation(fields: [bookingId], references: [id])
+
+  messages  Message[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Message {
+  id             String       @id @default(auto()) @map("_id") @db.ObjectId
+  conversationId String       @db.ObjectId
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+
+  senderId String @db.ObjectId
+  sender   User   @relation(fields: [senderId], references: [id])
+
+  content String
+  isRead  Boolean    @default(false)
+  type    SenderType @default(USER)
+
+  createdAt DateTime @default(now())
+}
+
+// --------------------------------------
+// 8. Reviews & Ratings
+// --------------------------------------
+
+model Review {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  bookingId String  @unique @db.ObjectId
+  booking   Booking @relation(fields: [bookingId], references: [id])
+
+  reviewerId String @db.ObjectId
+  reviewer   User   @relation("GivenReviews", fields: [reviewerId], references: [id])
+
+  revieweeId String @db.ObjectId
+  reviewee   User   @relation("ReceivedReviews", fields: [revieweeId], references: [id])
+
+  rating  Int
+  comment String?
+
+  punctuality     Int?
+  professionalism Int?
+  communication   Int?
+
+  createdAt DateTime @default(now())
+}
+
+// --------------------------------------
+// 9. Payment System
+// --------------------------------------
+
+model Payment {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  bookingId String  @unique @db.ObjectId
+  booking   Booking @relation(fields: [bookingId], references: [id])
+
+  transactionId String        @unique
+  amount        Float
+  currency      String        @default("BDT")
+  status        PaymentStatus @default(PENDING)
+  method        String?
+
+  paymentDate DateTime @default(now())
+}
+
+// --------------------------------------
+// 13. Activity & Reporting
+// --------------------------------------
+
+model DailyReport {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  bookingId String  @unique @db.ObjectId
+  booking   Booking @relation(fields: [bookingId], references: [id])
+
+  notes      String?
+  moodRating Int?
+
+  activities ActivityLog[]
+  createdAt  DateTime      @default(now())
+}
+
+model ActivityLog {
+  id       String      @id @default(auto()) @map("_id") @db.ObjectId
+  reportId String      @db.ObjectId
+  report   DailyReport @relation(fields: [reportId], references: [id])
+
+  type        String
+  description String?
+  photoUrl    String?
+  timestamp   DateTime @default(now())
+}
+
+// --------------------------------------
+// 14. Emergency & Admin
+// --------------------------------------
+
+model SOSAlert {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id])
+
+  latitude   Float
+  longitude  Float
+  status     AlertStatus @default(ACTIVE)
+
+  createdAt  DateTime  @default(now())
+  resolvedAt DateTime?
+}
+
+model AdminLog {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  adminId   String   @db.ObjectId
+  admin     User     @relation(fields: [adminId], references: [id])
+  action    String
+  timestamp DateTime @default(now())
+}
+
+model Notification {
+  id        String           @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String           @db.ObjectId
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType @default(SYSTEM)
+  title     String
+  body      String
+  link      String?
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+}
+
+// --------------------------------------
+// Emergency Contacts (from SQL: emergency_contacts)
+// --------------------------------------
+
+model EmergencyContact {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId       Int
+  userRole     String
+  contactName  String
+  contactPhone String
+  relationship String?
+  isPrimary    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+}
+
+// --------------------------------------
+// Class Links (from SQL: class_links)
+// --------------------------------------
+
+model ClassLink {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  sitterId  Int?
+  sitterName String?
+  link      String?
+  info      String?
+  createdAt DateTime @default(now())
+}
+
+// --------------------------------------
+// Consultation Slots (from SQL: consultation_slots)
+// --------------------------------------
+
+model ConsultationSlot {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  parentId   Int?
+  parentName String?
+  sitterId   Int?
+  sitterName String?
+  date       DateTime?
+  time       String?
+  status     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}
+
+// --------------------------------------
+// Sitter Record (from SQL: sitter_record)
+// --------------------------------------
+
+model SitterRecord {
+  id   String  @id @default(auto()) @map("_id") @db.ObjectId
+  sitterId Int?
+  name String?
+  link String?
+}
