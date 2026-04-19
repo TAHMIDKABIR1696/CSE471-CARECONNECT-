@@ -95,10 +95,10 @@ export default function ReviewsPage() {
         const allBookings = Array.isArray(response.data.bookings)
           ? response.data.bookings
           : [];
-        // Filter completed bookings that haven't been reviewed
+        // Filter confirmed/completed bookings that this user hasn't reviewed
         const completed = allBookings.filter(
           (b: IBooking) =>
-            b.status === "COMPLETED" && !b.review
+            (b.status === "CONFIRMED" || b.status === "COMPLETED") && !b.review
         );
         setCompletedBookings(completed);
       }
@@ -327,7 +327,7 @@ export default function ReviewsPage() {
             <MessageSquare className="h-16 w-16 text-slate-300 mx-auto mb-4" />
             <p className="text-slate-600 font-medium">No reviews yet</p>
             <p className="text-slate-400 text-sm mt-1">
-              Complete a booking and share your experience!
+              Confirm or complete a booking and share your experience!
             </p>
           </div>
         ) : (
@@ -577,4 +577,3 @@ export default function ReviewsPage() {
     </div>
   );
 }
-

@@ -189,7 +189,7 @@ model Booking {
   totalAmount Float @default(0.0)
 
   payment      Payment?
-  review       Review?
+  reviews      Review[]
   dailyReport  DailyReport?
   conversation Conversation?
   liveSession  LiveSession?
@@ -259,7 +259,7 @@ model Message {
 
 model Review {
   id        String  @id @default(auto()) @map("_id") @db.ObjectId
-  bookingId String  @unique @db.ObjectId
+  bookingId String  @db.ObjectId
   booking   Booking @relation(fields: [bookingId], references: [id])
 
   reviewerId String @db.ObjectId
@@ -276,6 +276,8 @@ model Review {
   communication   Int?
 
   createdAt DateTime @default(now())
+
+  @@unique([bookingId, reviewerId])
 }
 
 // --------------------------------------

@@ -9,24 +9,51 @@ export const createReview = async (req: AuthRequest, res: Response): Promise<voi
   try {
     const { bookingId, revieweeId, rating, comment, punctuality, professionalism, communication } = req.body;
     const reviewerId = req.user!.id;
+    const parsedRating = parseInt(rating, 10);
+
+    if (!bookingId || Number.isNaN(parsedRating)) {
+      res.status(400).json({ message: "Booking ID and a valid rating are required." }); return;
+    }
+    if (parsedRating < 1 || parsedRating > 5) {
+      res.status(400).json({ message: "Rating must be between 1 and 5." }); return;
+    }
 
     const booking = await ReviewModel.findBookingById(bookingId);
-    if (!booking || booking.status !== "COMPLETED") {
-      res.status(400).json({ message: "You can only review completed bookings." }); return;
+    if (!booking || (booking.status !== "CONFIRMED" && booking.status !== "COMPLETED")) {
+      res.status(400).json({ message: "You can only review confirmed or completed bookings." }); return;
+    }
+
+    const isParentReviewer = booking.parent.userId === reviewerId;
+    const isSitterReviewer = booking.babysitter.userId === reviewerId;
+    if (!isParentReviewer && !isSitterReviewer) {
+      res.status(403).json({ message: "You can only review your own confirmed or completed bookings." }); return;
+    }
+
+    const derivedRevieweeId = isParentReviewer
+      ? booking.babysitter.userId
+      : booking.parent.userId;
+
+    if (revieweeId && revieweeId !== derivedRevieweeId) {
+      res.status(400).json({ message: "Invalid review target for this booking." }); return;
+    }
+
+    const existingReview = await ReviewModel.findByBookingAndReviewer(bookingId, reviewerId);
+    if (existingReview) {
+      res.status(400).json({ message: "You already reviewed this booking." }); return;
     }
 
     const review = await ReviewModel.create({
-      bookingId, reviewerId, revieweeId,
-      rating: parseInt(rating), comment,
-      punctuality: punctuality ? parseInt(punctuality) : null,
-      professionalism: professionalism ? parseInt(professionalism) : null,
-      communication: communication ? parseInt(communication) : null,
+      bookingId, reviewerId, revieweeId: derivedRevieweeId,
+      rating: parsedRating, comment,
+      punctuality: punctuality ? parseInt(punctuality, 10) : null,
+      professionalism: professionalism ? parseInt(professionalism, 10) : null,
+      communication: communication ? parseInt(communication, 10) : null,
     });
 
     // Update babysitter's average rating if reviewee is a babysitter
-    const reviewee = await ReviewModel.findRevieweeWithSitter(revieweeId);
+    const reviewee = await ReviewModel.findRevieweeWithSitter(derivedRevieweeId);
     if (reviewee && reviewee.babysitter) {
-      const allReviews = await ReviewModel.findAllByReviewee(revieweeId);
+      const allReviews = await ReviewModel.findAllByReviewee(derivedRevieweeId);
       const totalRatings = allReviews.length;
       const avgRating = totalRatings > 0
         ? allReviews.reduce((sum, r) => sum + r.rating, 0) / totalRatings

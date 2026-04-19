@@ -59,27 +59,35 @@ export const updateStatus = (
   });
 
 // ── Get bookings for a parent ──
-export const findByParent = (parentId: string) =>
+export const findByParent = (parentId: string, reviewerId: string) =>
   prisma.booking.findMany({
     where: { parentId },
     include: {
-      babysitter: { include: { user: { select: { name: true, email: true } } } },
+      babysitter: { include: { user: { select: { id: true, name: true, email: true } } } },
       payment: { select: { id: true, status: true, transactionId: true } },
-      review: { select: { id: true, rating: true } },
+      reviews: {
+        where: { reviewerId },
+        select: { id: true, rating: true },
+        take: 1,
+      },
     },
     orderBy: { createdAt: "desc" },
   });
 
 // ── Get bookings for a sitter ──
-export const findBySitter = (babysitterId: string) =>
+export const findBySitter = (babysitterId: string, reviewerId: string) =>
   prisma.booking.findMany({
     where: { babysitterId },
     include: {
       parent: {
-        include: { user: { select: { name: true, email: true, phoneNumber: true } } },
+        include: { user: { select: { id: true, name: true, email: true, phoneNumber: true } } },
       },
       payment: { select: { id: true, status: true, transactionId: true } },
-      review: { select: { id: true, rating: true } },
+      reviews: {
+        where: { reviewerId },
+        select: { id: true, rating: true },
+        take: 1,
+      },
     },
     orderBy: { createdAt: "desc" },
   });

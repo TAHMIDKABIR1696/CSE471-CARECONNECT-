@@ -61,21 +61,32 @@ export const getMyBookings = async (req: AuthRequest, res: Response): Promise<vo
   try {
     const userId = req.user!.id;
     const role = req.user!.role;
-    let bookings: unknown[] = [];
+    let bookings: Array<Record<string, unknown>> = [];
 
     if (role === "PARENT") {
       const parent = await BookingModel.getParent(userId);
       if (!parent) { res.status(200).json({ success: true, bookings: [] }); return; }
-      bookings = await BookingModel.findByParent(parent.id);
+      bookings = await BookingModel.findByParent(parent.id, userId) as Array<Record<string, unknown>>;
     } else if (role === "BABYSITTER") {
       const sitter = await BookingModel.findSitter(userId);
       if (!sitter) { res.status(200).json({ success: true, bookings: [] }); return; }
-      bookings = await BookingModel.findBySitter(sitter.id);
+      bookings = await BookingModel.findBySitter(sitter.id, userId) as Array<Record<string, unknown>>;
     } else if (role === "ADMIN") {
-      bookings = await BookingModel.findAll();
+      bookings = await BookingModel.findAll() as Array<Record<string, unknown>>;
     }
 
-    res.status(200).json({ success: true, bookings: bookings || [] });
+    const bookingsWithReviewFlag = bookings.map((booking) => {
+      const bookingReviews = Array.isArray(booking.reviews)
+        ? booking.reviews as Array<Record<string, unknown>>
+        : [];
+
+      return {
+        ...booking,
+        review: bookingReviews[0] || null,
+      };
+    });
+
+    res.status(200).json({ success: true, bookings: bookingsWithReviewFlag || [] });
   } catch (error) {
     console.error("Get Bookings Error:", error);
     res.status(500).json({ message: "Server Error" });

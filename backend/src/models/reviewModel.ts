@@ -1,8 +1,21 @@
 import prisma from "../config/db.js";
 
-// ── Find booking by ID ──
+// ── Find booking by ID with parent/sitter user IDs ──
 export const findBookingById = (id: string) =>
-  prisma.booking.findUnique({ where: { id } });
+  prisma.booking.findUnique({
+    where: { id },
+    include: {
+      parent: { select: { userId: true } },
+      babysitter: { select: { userId: true } },
+    },
+  });
+
+// ── Find existing review for a booking by reviewer ──
+export const findByBookingAndReviewer = (bookingId: string, reviewerId: string) =>
+  prisma.review.findFirst({
+    where: { bookingId, reviewerId },
+    select: { id: true },
+  });
 
 // ── Create a review ──
 export const create = (data: {
