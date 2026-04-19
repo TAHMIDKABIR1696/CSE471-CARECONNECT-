@@ -6,19 +6,104 @@ import { AuthRequest } from "../types/index.js";
  * Messaging & Communication System
  */
 
+const canChatForStatus = (status: string) =>
+  MessagingModel.chatEnabledStatuses.includes(
+    status as (typeof MessagingModel.chatEnabledStatuses)[number]
+  );
+
+const isParticipantOrAdmin = (
+  req: AuthRequest,
+  conversation: Awaited<ReturnType<typeof MessagingModel.findConversationById>>
+) => {
+  const userId = req.user!.id;
+  if (req.user!.role === "ADMIN") return true;
+  return (
+    conversation?.booking?.parent?.userId === userId ||
+    conversation?.booking?.babysitter?.userId === userId
+  );
+};
+
 // Create or get conversation
 export const getOrCreateConversation = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { bookingId, otherUserId } = req.body;
+    const { conversationId, bookingId, otherUserId } = req.body as {
+      conversationId?: string;
+      bookingId?: string;
+      otherUserId?: string;
+    };
     const userId = req.user!.id;
 
-    let conversation = await MessagingModel.findConversation(bookingId, userId, otherUserId);
+    if (conversationId) {
+      const conversation = await MessagingModel.findConversationById(conversationId);
+      if (!conversation) {
+        res.status(404).json({ message: "Conversation not found" });
+        return;
+      }
 
-    if (!conversation && bookingId) {
-      conversation = await MessagingModel.createConversation(bookingId);
+      if (!isParticipantOrAdmin(req, conversation)) {
+        res.status(403).json({ message: "Not authorized to access this conversation" });
+        return;
+      }
+
+      if (
+        req.user!.role !== "ADMIN" &&
+        conversation.booking &&
+        !canChatForStatus(conversation.booking.status)
+      ) {
+        res.status(403).json({
+          message: "Messaging is available only after booking acceptance",
+        });
+        return;
+      }
+
+      res.status(200).json({ success: true, conversation });
+      return;
     }
 
-    res.status(200).json({ success: true, conversation: conversation || null });
+    if (bookingId) {
+      const booking = await MessagingModel.findBookingWithParticipants(bookingId);
+      if (!booking) {
+        res.status(404).json({ message: "Booking not found" });
+        return;
+      }
+
+      const isParticipant =
+        booking.parent.userId === userId || booking.babysitter.userId === userId;
+      if (!isParticipant && req.user!.role !== "ADMIN") {
+        res.status(403).json({ message: "Not authorized to access this booking chat" });
+        return;
+      }
+
+      if (req.user!.role !== "ADMIN" && !canChatForStatus(booking.status)) {
+        res.status(403).json({
+          message: "Messaging is available only after booking acceptance",
+        });
+        return;
+      }
+
+      const conversation = await MessagingModel.ensureConversationForBooking(bookingId);
+      res.status(200).json({ success: true, conversation });
+      return;
+    }
+
+    if (otherUserId) {
+      const eligibleBooking = await MessagingModel.findLatestEligibleBookingBetweenUsers(
+        userId,
+        otherUserId
+      );
+      if (!eligibleBooking) {
+        res.status(404).json({
+          message: "No accepted booking found with this user",
+        });
+        return;
+      }
+
+      const conversation = await MessagingModel.ensureConversationForBooking(eligibleBooking.id);
+      res.status(200).json({ success: true, conversation });
+      return;
+    }
+
+    res.status(400).json({ message: "Provide conversationId, bookingId, or otherUserId" });
   } catch (error) {
     console.error("Conversation Error:", error);
     res.status(500).json({ message: "Failed to get conversation" });
@@ -35,13 +120,34 @@ export const sendMessage = async (req: AuthRequest, res: Response): Promise<void
       res.status(400).json({ message: "Missing required fields" }); return;
     }
 
+    const conversation = await MessagingModel.findConversationById(conversationId as string);
+    if (!conversation) {
+      res.status(404).json({ message: "Conversation not found" }); return;
+    }
+
+    if (!isParticipantOrAdmin(req, conversation)) {
+      res.status(403).json({ message: "Not authorized to send in this conversation" }); return;
+    }
+
+    if (
+      req.user!.role !== "ADMIN" &&
+      conversation.booking &&
+      !canChatForStatus(conversation.booking.status)
+    ) {
+      res.status(403).json({
+        message: "Messaging is available only after booking acceptance",
+      });
+      return;
+    }
+
     const message = await MessagingModel.createMessage({
-      conversationId, senderId,
+      conversationId: conversationId as string,
+      senderId,
       content: translatedContent || content,
       type: "USER",
     });
 
-    await MessagingModel.touchConversation(conversationId);
+    await MessagingModel.touchConversation(conversationId as string);
     res.status(201).json({ success: true, message: "Message sent successfully", data: message });
   } catch (error) {
     console.error("Send Message Error:", error);
@@ -72,7 +178,17 @@ export const getMyConversations = async (req: AuthRequest, res: Response): Promi
 // Mark messages as read
 export const markAsRead = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    await MessagingModel.markAsRead(req.params.conversationId as string, req.user!.id);
+    const conversationId = req.params.conversationId as string;
+    const conversation = await MessagingModel.findConversationById(conversationId);
+    if (!conversation) {
+      res.status(404).json({ message: "Conversation not found" }); return;
+    }
+
+    if (!isParticipantOrAdmin(req, conversation)) {
+      res.status(403).json({ message: "Not authorized to access this conversation" }); return;
+    }
+
+    await MessagingModel.markAsRead(conversationId, req.user!.id);
     res.status(200).json({ success: true, message: "Messages marked as read" });
   } catch (error) {
     console.error("Mark Read Error:", error);
@@ -113,6 +229,17 @@ export const getMessageHistory = async (req: AuthRequest, res: Response): Promis
       conversation.booking?.babysitter?.userId === userId ||
       req.user!.role === "ADMIN";
     if (!isAuthorized) { res.status(403).json({ message: "Not authorized" }); return; }
+
+    if (
+      req.user!.role !== "ADMIN" &&
+      conversation.booking &&
+      !canChatForStatus(conversation.booking.status)
+    ) {
+      res.status(403).json({
+        message: "Messaging is available only after booking acceptance",
+      });
+      return;
+    }
 
     const limitNum = parseInt(limit) || 50;
     const offsetNum = parseInt(offset) || 0;

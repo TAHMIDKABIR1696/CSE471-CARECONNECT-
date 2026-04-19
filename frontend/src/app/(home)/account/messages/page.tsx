@@ -4,6 +4,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import proxy from "@/lib/proxy";
 import toast from "react-hot-toast";
+import { useSearchParams } from "next/navigation";
 import {
   MessageSquare,
   Send,
@@ -14,45 +15,45 @@ import {
   Check,
   CheckCheck,
   Globe,
-  Clock,
-  X,
   ChevronLeft,
 } from "lucide-react";
 
 interface IMessage {
-  id: number;
+  id: string;
   content: string;
-  senderId: number;
+  senderId: string;
   isRead: boolean;
   type: "USER" | "BOT";
   createdAt: string;
   sender: {
-    id: number;
+    id: string;
     name: string;
     profilePicture: string | null;
   };
 }
 
 interface IConversation {
-  id: number;
+  id: string;
   unreadCount?: number;
   updatedAt: string;
   messages: IMessage[];
   booking?: {
-    id: number;
+    id: string;
     startTime: string;
     endTime: string;
     parent?: {
-      user: { id: number; name: string; profilePicture: string | null };
+      user: { id: string; name: string; profilePicture: string | null };
     };
     babysitter?: {
-      user: { id: number; name: string; profilePicture: string | null };
+      user: { id: string; name: string; profilePicture: string | null };
     };
   };
 }
 
 export default function MessagesPage() {
   const { user } = useAuth();
+  const searchParams = useSearchParams();
+  const bookingIdFromQuery = searchParams.get("bookingId");
   const [conversations, setConversations] = useState<IConversation[]>([]);
   const [selectedConversation, setSelectedConversation] =
     useState<IConversation | null>(null);
@@ -66,32 +67,10 @@ export default function MessagesPage() {
   const [translatedMessage, setTranslatedMessage] = useState<string>("");
   const [translating, setTranslating] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-
-  useEffect(() => {
-    fetchConversations();
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    if (selectedConversation) {
-      fetchMessages(selectedConversation.id);
-      markAsRead(selectedConversation.id);
-      // Auto-refresh messages every 5 seconds
-      intervalRef.current = setInterval(() => {
-        fetchMessages(selectedConversation.id, true);
-      }, 5000);
-    }
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
-  }, [selectedConversation]);
+  const messagePollRef = useRef<NodeJS.Timeout | null>(null);
+  const conversationPollRef = useRef<NodeJS.Timeout | null>(null);
+  const unreadSnapshotRef = useRef<Record<string, number>>({});
+  const autoOpenBookingRef = useRef<string | null>(null);
 
   useEffect(() => {
     scrollToBottom();
@@ -101,60 +80,195 @@ export default function MessagesPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const fetchConversations = async () => {
+  const getApiErrorMessage = (error: unknown, fallback: string) => {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "response" in error &&
+      typeof (error as { response?: { data?: { message?: string } } }).response?.data
+        ?.message === "string"
+    ) {
+      return (
+        error as { response?: { data?: { message?: string } } }
+      ).response?.data?.message as string;
+    }
+    return fallback;
+  };
+
+  const getOtherParty = (conversation: IConversation) => {
+    if (!conversation.booking) return null;
+    const isParent = user?.role === "PARENT";
+    return isParent
+      ? conversation.booking.babysitter?.user
+      : conversation.booking.parent?.user;
+  };
+
+  const fetchConversations = async (options?: {
+    silent?: boolean;
+    showNotifications?: boolean;
+  }) => {
     try {
-      setLoading(true);
+      if (!options?.silent) setLoading(true);
       const response = await proxy.get("/messaging/conversations");
       if (response.data.success && response.data.conversations) {
-        setConversations(
-          Array.isArray(response.data.conversations)
-            ? response.data.conversations
-            : []
+        const nextConversations: IConversation[] = Array.isArray(
+          response.data.conversations
+        )
+          ? response.data.conversations
+          : [];
+
+        if (options?.showNotifications) {
+          for (const conversation of nextConversations) {
+            const previousUnread = unreadSnapshotRef.current[conversation.id] || 0;
+            const currentUnread = conversation.unreadCount || 0;
+            if (currentUnread > previousUnread) {
+              const senderName = getOtherParty(conversation)?.name || "your contact";
+              toast.success(`New message from ${senderName}`);
+              if (
+                typeof window !== "undefined" &&
+                "Notification" in window &&
+                Notification.permission === "granted"
+              ) {
+                new Notification("New message", {
+                  body: `You received a new message from ${senderName}`,
+                });
+              }
+            }
+          }
+        }
+
+        unreadSnapshotRef.current = nextConversations.reduce<Record<string, number>>(
+          (acc, conversation) => {
+            acc[conversation.id] = conversation.unreadCount || 0;
+            return acc;
+          },
+          {}
         );
+
+        setConversations(nextConversations);
+        setSelectedConversation((prev) =>
+          prev
+            ? nextConversations.find((conversation) => conversation.id === prev.id) || prev
+            : prev
+        );
+      } else {
+        setConversations([]);
+        unreadSnapshotRef.current = {};
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Fetch Conversations Error:", error);
-      toast.error("Failed to load conversations");
+      if (!options?.silent) {
+        toast.error("Failed to load conversations");
+      }
     } finally {
-      setLoading(false);
+      if (!options?.silent) setLoading(false);
     }
   };
 
-  const fetchMessages = async (conversationId: number, silent = false) => {
+  const fetchMessages = async (conversationId: string, silent = false) => {
     try {
       const response = await proxy.post("/messaging/conversation", {
         conversationId,
       });
 
       if (response.data.success && response.data.conversation) {
-        const conv = response.data.conversation;
+        const conv = response.data.conversation as IConversation;
         setMessages(conv.messages || []);
-        // Update conversation in list
         if (!silent) {
           setSelectedConversation(conv);
         }
+        setConversations((prev) =>
+          prev.map((item) =>
+            item.id === conv.id ? { ...item, ...conv, unreadCount: item.unreadCount } : item
+          )
+        );
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Fetch Messages Error:", error);
       if (!silent) {
-        toast.error("Failed to load messages");
+        toast.error(getApiErrorMessage(error, "Failed to load messages"));
       }
     }
   };
 
-  const markAsRead = async (conversationId: number) => {
+  const markAsRead = async (conversationId: string) => {
     try {
       await proxy.put(`/messaging/conversation/${conversationId}/read`);
-      // Update local state
       setConversations((prev) =>
         prev.map((conv) =>
           conv.id === conversationId ? { ...conv, unreadCount: 0 } : conv
         )
       );
-    } catch (error: any) {
+      unreadSnapshotRef.current[conversationId] = 0;
+    } catch (error: unknown) {
       console.error("Mark Read Error:", error);
     }
   };
+
+  useEffect(() => {
+    fetchConversations();
+
+    if (
+      typeof window !== "undefined" &&
+      "Notification" in window &&
+      Notification.permission === "default"
+    ) {
+      Notification.requestPermission().catch(() => undefined);
+    }
+
+    conversationPollRef.current = setInterval(() => {
+      fetchConversations({ silent: true, showNotifications: true });
+    }, 5000);
+
+    return () => {
+      if (messagePollRef.current) clearInterval(messagePollRef.current);
+      if (conversationPollRef.current) clearInterval(conversationPollRef.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    const selectedConversationId = selectedConversation?.id;
+    if (!selectedConversationId) return;
+
+    fetchMessages(selectedConversationId);
+    markAsRead(selectedConversationId);
+
+    if (messagePollRef.current) clearInterval(messagePollRef.current);
+    messagePollRef.current = setInterval(() => {
+      fetchMessages(selectedConversationId, true);
+      markAsRead(selectedConversationId);
+    }, 5000);
+
+    return () => {
+      if (messagePollRef.current) clearInterval(messagePollRef.current);
+    };
+  }, [selectedConversation?.id]);
+
+  useEffect(() => {
+    if (!bookingIdFromQuery || autoOpenBookingRef.current === bookingIdFromQuery) return;
+
+    const autoOpenConversation = async () => {
+      try {
+        const response = await proxy.post("/messaging/conversation", {
+          bookingId: bookingIdFromQuery,
+        });
+
+        if (response.data.success && response.data.conversation) {
+          const conversation = response.data.conversation as IConversation;
+          autoOpenBookingRef.current = bookingIdFromQuery;
+          setSelectedConversation(conversation);
+          setMessages(conversation.messages || []);
+          setShowMobileChat(true);
+          fetchConversations({ silent: true });
+        }
+      } catch (error: unknown) {
+        autoOpenBookingRef.current = bookingIdFromQuery;
+        toast.error(getApiErrorMessage(error, "Unable to start chat for this booking"));
+      }
+    };
+
+    autoOpenConversation();
+  }, [bookingIdFromQuery]);
 
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -170,17 +284,16 @@ export default function MessagesPage() {
       });
 
       if (response.data.success) {
-        const sentMessage = response.data.data;
+        const sentMessage = response.data.data as IMessage;
         setMessages((prev) => [...prev, sentMessage]);
         setNewMessage("");
         setTranslatedMessage("");
         scrollToBottom();
-        // Refresh conversations to update latest message
-        fetchConversations();
+        fetchConversations({ silent: true });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Send Message Error:", error);
-      toast.error(error.response?.data?.message || "Failed to send message");
+      toast.error(getApiErrorMessage(error, "Failed to send message"));
     } finally {
       setSending(false);
     }
@@ -202,7 +315,7 @@ export default function MessagesPage() {
       if (response.data.success) {
         setTranslatedMessage(response.data.translatedText);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Translation Error:", error);
       toast.error("Translation failed. Message will be sent in original language.");
     } finally {
@@ -217,14 +330,6 @@ export default function MessagesPage() {
     } else {
       setTranslatedMessage("");
     }
-  };
-
-  const getOtherParty = (conversation: IConversation) => {
-    if (!conversation.booking) return null;
-    const isParent = user?.role === "PARENT";
-    return isParent
-      ? conversation.booking.babysitter?.user
-      : conversation.booking.parent?.user;
   };
 
   const formatTime = (dateString: string) => {
@@ -255,9 +360,9 @@ export default function MessagesPage() {
     const otherParty = getOtherParty(conv);
     const searchLower = searchQuery.toLowerCase();
     return (
-      otherParty?.name.toLowerCase().includes(searchLower) ||
+      otherParty?.name?.toLowerCase()?.includes(searchLower) ||
       conv.booking?.id.toString().includes(searchLower) ||
-      conv.messages?.[0]?.content.toLowerCase().includes(searchLower)
+      conv.messages?.[0]?.content?.toLowerCase()?.includes(searchLower)
     );
   });
 
@@ -439,7 +544,9 @@ export default function MessagesPage() {
                     </div>
                   ) : (
                     messages.map((message) => {
-                      const isOwnMessage = message.senderId === user?.id;
+                      const isOwnMessage =
+                        user?.id !== undefined &&
+                        String(message.senderId) === String(user.id);
                       const isBot = message.type === "BOT";
 
                       return (
@@ -569,4 +676,3 @@ export default function MessagesPage() {
     </div>
   );
 }
-

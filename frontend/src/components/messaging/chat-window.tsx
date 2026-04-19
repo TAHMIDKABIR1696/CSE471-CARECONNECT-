@@ -1,39 +1,39 @@
 "use client";
 
 import React, { useEffect, useState, useRef } from "react";
-import axios from "axios";
 import toast from "react-hot-toast";
 import { Send, Loader2, MessageCircle } from "lucide-react";
 import proxy from "@/lib/proxy";
+import { useAuth } from "@/hooks/use-auth";
 
 interface Message {
-  id: number;
+  id: string;
   content: string;
-  senderId: number;
+  senderId: string;
   isRead: boolean;
   type: "USER" | "BOT";
   createdAt: string;
   sender: {
-    id: number;
+    id: string;
     name: string;
     profilePicture: string | null;
   };
 }
 
 interface Conversation {
-  id: number;
+  id: string;
   messages: Message[];
   booking?: {
-    id: number;
+    id: string;
     startTime: string;
     endTime: string;
   };
 }
 
 interface ChatWindowProps {
-  conversationId?: number;
-  bookingId?: number;
-  otherUserId?: number;
+  conversationId?: string;
+  bookingId?: string;
+  otherUserId?: string;
 }
 
 export default function ChatWindow({
@@ -41,6 +41,7 @@ export default function ChatWindow({
   bookingId,
   otherUserId,
 }: ChatWindowProps) {
+  const { user } = useAuth();
   const [conversation, setConversation] = useState<Conversation | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
@@ -62,6 +63,21 @@ export default function ChatWindow({
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const getApiErrorMessage = (error: unknown, fallback: string) => {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "response" in error &&
+      typeof (error as { response?: { data?: { message?: string } } }).response?.data
+        ?.message === "string"
+    ) {
+      return (
+        error as { response?: { data?: { message?: string } } }
+      ).response?.data?.message as string;
+    }
+    return fallback;
+  };
+
   const fetchConversation = async () => {
     try {
       setLoading(true);
@@ -76,9 +92,9 @@ export default function ChatWindow({
         setConversation(conv);
         setMessages(conv?.messages || []);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error fetching conversation:", error);
-      toast.error("Failed to load conversation");
+      toast.error(getApiErrorMessage(error, "Failed to load conversation"));
     } finally {
       setLoading(false);
     }
@@ -108,9 +124,9 @@ export default function ChatWindow({
         setNewMessage("");
         scrollToBottom();
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error sending message:", error);
-      toast.error("Failed to send message");
+      toast.error(getApiErrorMessage(error, "Failed to send message"));
     } finally {
       setSending(false);
     }
@@ -160,7 +176,8 @@ export default function ChatWindow({
         ) : (
           messages.map((message) => {
             const isBot = message.type === "BOT";
-            const isOwnMessage = !isBot; // In real app, check against current user ID
+            const isOwnMessage =
+              user?.id !== undefined && String(message.senderId) === String(user.id);
 
             return (
               <div
@@ -235,4 +252,3 @@ export default function ChatWindow({
     </div>
   );
 }
-

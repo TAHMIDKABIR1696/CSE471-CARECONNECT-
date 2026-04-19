@@ -1,5 +1,6 @@
 import { Response } from "express";
 import * as BookingModel from "../models/bookingModel.js";
+import * as MessagingModel from "../models/messagingModel.js";
 import { sendBookingConfirmedEmail, sendBookingRequestEmail } from "../services/emailService.js";
 import { AuthRequest } from "../types/index.js";
 
@@ -114,6 +115,10 @@ export const updateBookingStatus = async (req: AuthRequest, res: Response): Prom
       bookingId,
       status as "PENDING" | "CONFIRMED" | "REJECTED" | "CANCELLED" | "LIVE" | "COMPLETED"
     );
+
+    if (status === "CONFIRMED") {
+      await MessagingModel.ensureConversationForBooking(bookingId);
+    }
 
     try {
       if (status === "CONFIRMED") {

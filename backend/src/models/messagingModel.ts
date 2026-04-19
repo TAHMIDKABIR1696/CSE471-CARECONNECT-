@@ -1,5 +1,7 @@
 import prisma from "../config/db.js";
 
+export const chatEnabledStatuses = ["CONFIRMED", "LIVE", "COMPLETED"] as const;
+
 const messageWithSender = {
   include: {
     sender: { select: { id: true, name: true, profilePicture: true } },
@@ -13,35 +15,63 @@ const conversationIncludes = {
   },
   booking: {
     include: {
-      parent: { include: { user: { select: { name: true } } } },
-      babysitter: { include: { user: { select: { name: true } } } },
+      parent: { include: { user: { select: { id: true, name: true, profilePicture: true } } } },
+      babysitter: { include: { user: { select: { id: true, name: true, profilePicture: true } } } },
     },
   },
 };
 
-// ── Find existing conversation by booking or participants ──
-export const findConversation = (bookingId: string | undefined, userId: string, otherUserId: string) =>
-  prisma.conversation.findFirst({
-    where: {
-      OR: [
-        { bookingId: bookingId || undefined },
-        {
-          messages: {
-            some: {
-              OR: [{ senderId: userId }, { senderId: otherUserId }],
-            },
-          },
-        },
-      ],
-    },
+// ── Get conversation by ID ──
+export const findConversationById = (conversationId: string) =>
+  prisma.conversation.findUnique({
+    where: { id: conversationId },
     include: conversationIncludes,
   });
 
-// ── Create a new conversation for a booking ──
-export const createConversation = (bookingId: string) =>
-  prisma.conversation.create({
-    data: { bookingId },
+// ── Get conversation by booking ──
+export const findConversationByBooking = (bookingId: string) =>
+  prisma.conversation.findUnique({
+    where: { bookingId },
     include: conversationIncludes,
+  });
+
+// ── Create conversation for an accepted booking (idempotent) ──
+export const ensureConversationForBooking = (bookingId: string) =>
+  prisma.conversation.upsert({
+    where: { bookingId },
+    update: { updatedAt: new Date() },
+    create: { bookingId },
+    include: conversationIncludes,
+  });
+
+// ── Find booking and participants ──
+export const findBookingWithParticipants = (bookingId: string) =>
+  prisma.booking.findUnique({
+    where: { id: bookingId },
+    include: {
+      parent: { include: { user: { select: { id: true, name: true, profilePicture: true } } } },
+      babysitter: { include: { user: { select: { id: true, name: true, profilePicture: true } } } },
+    },
+  });
+
+// ── Find latest chat-eligible booking between two users ──
+export const findLatestEligibleBookingBetweenUsers = (userId: string, otherUserId: string) =>
+  prisma.booking.findFirst({
+    where: {
+      status: { in: [...chatEnabledStatuses] },
+      OR: [
+        {
+          parent: { userId },
+          babysitter: { userId: otherUserId },
+        },
+        {
+          parent: { userId: otherUserId },
+          babysitter: { userId },
+        },
+      ],
+    },
+    orderBy: { updatedAt: "desc" },
+    select: { id: true },
   });
 
 // ── Create a message ──
@@ -72,23 +102,26 @@ export const touchConversation = (conversationId: string) =>
 export const findUserConversations = (userId: string) =>
   prisma.conversation.findMany({
     where: {
-      messages: {
-        some: {
-          OR: [
-            { senderId: userId },
+      OR: [
+        {
+          booking: {
+            status: { in: [...chatEnabledStatuses] },
+            OR: [{ parent: { userId } }, { babysitter: { userId } }],
+          },
+        },
+        {
+          AND: [
             {
-              conversation: {
-                booking: {
-                  OR: [
-                    { parent: { userId } },
-                    { babysitter: { userId } },
-                  ],
-                },
+              bookingId: null,
+            },
+            {
+              messages: {
+                some: { senderId: userId },
               },
             },
           ],
         },
-      },
+      ],
     },
     include: {
       messages: {
@@ -98,8 +131,8 @@ export const findUserConversations = (userId: string) =>
       },
       booking: {
         include: {
-          parent: { include: { user: { select: { name: true, profilePicture: true } } } },
-          babysitter: { include: { user: { select: { name: true, profilePicture: true } } } },
+          parent: { include: { user: { select: { id: true, name: true, profilePicture: true } } } },
+          babysitter: { include: { user: { select: { id: true, name: true, profilePicture: true } } } },
         },
       },
     },

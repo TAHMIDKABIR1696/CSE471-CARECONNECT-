@@ -6,15 +6,14 @@ import toast from "react-hot-toast";
 import { useAuth } from "@/hooks/use-auth";
 import proxy from "@/lib/proxy";
 import StripePaymentModal from "@/components/payment/stripe-payment-modal";
+import { useRouter } from "next/navigation";
 import {
   CalendarCheck,
   Clock,
   CheckCircle,
-  XCircle,
-  MapPin,
-  User,
   Loader2,
   CreditCard,
+  MessageCircle,
 } from "lucide-react";
 
 // Types (একটু বড় হবে কারণ রিলেশন ডাটা আছে)
@@ -44,6 +43,7 @@ interface IBooking {
 }
 
 export default function BookingsPage() {
+  const router = useRouter();
   const { user } = useAuth();
   const [bookings, setBookings] = useState<IBooking[]>([]);
   const [loading, setLoading] = useState(true);
@@ -67,10 +67,14 @@ export default function BookingsPage() {
         console.log("No bookings found or invalid response");
         setBookings([]);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Fetch Error", error);
-      console.error("Error response:", error.response?.data); // Debug log
-      toast.error(error.response?.data?.message || "Failed to load bookings");
+      if (axios.isAxiosError(error)) {
+        console.error("Error response:", error.response?.data); // Debug log
+        toast.error(error.response?.data?.message || "Failed to load bookings");
+      } else {
+        toast.error("Failed to load bookings");
+      }
       setBookings([]);
     } finally {
       setLoading(false);
@@ -93,7 +97,7 @@ export default function BookingsPage() {
   };
 
   // Handle Status Change (Accept/Reject/Cancel)
-  const handleStatusUpdate = async (id: number, newStatus: string) => {
+  const handleStatusUpdate = async (id: number, newStatus: IBooking["status"]) => {
     if (
       !confirm(
         `Are you sure you want to ${newStatus.toLowerCase()} this booking?`
@@ -108,11 +112,15 @@ export default function BookingsPage() {
 
       // UI আপডেট (Reload না করে)
       setBookings((prev) =>
-        prev.map((b) => (b.id === id ? { ...b, status: newStatus as any } : b))
+        prev.map((b) => (b.id === id ? { ...b, status: newStatus } : b))
       );
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Update error:", error);
-      toast.error(error.response?.data?.message || "Action failed");
+      if (axios.isAxiosError(error)) {
+        toast.error(error.response?.data?.message || "Action failed");
+      } else {
+        toast.error("Action failed");
+      }
     } finally {
       setActionLoading(null);
     }
@@ -281,7 +289,17 @@ export default function BookingsPage() {
                       )}
                     </div>
                   )}
-                  
+
+                  {["CONFIRMED", "LIVE", "COMPLETED"].includes(booking.status) && (
+                    <button
+                      onClick={() => router.push(`/account/messages?bookingId=${booking.id}`)}
+                      className="px-4 py-2 text-xs font-bold text-white bg-slate-700 hover:bg-slate-800 rounded-lg transition-colors flex items-center gap-2"
+                    >
+                      <MessageCircle className="h-3 w-3" />
+                      Message {isParent ? "Babysitter" : "Parent"}
+                    </button>
+                  )}
+                   
                   {/* Payment Button for Confirmed Bookings (Parent Only) */}
                   {isParent &&
                     booking.status === "CONFIRMED" &&
