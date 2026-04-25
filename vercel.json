@@ -3,7 +3,5 @@
   "outputDirectory": ".next",
   "installCommand": "npm install",
   "framework": "nextjs",
-  "projectSettings": {
-    "rootDirectory": "frontend"
-  }
+  "root": "frontend"
 }
