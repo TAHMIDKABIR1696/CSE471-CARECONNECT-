@@ -17,6 +17,7 @@ import {
   Briefcase,
 } from "lucide-react";
 import ImageWithFallback from "@/components/image-with-fallback";
+import { getApiUrl } from "@/lib/api-config";
 
 type UserRole = "PARENT" | "BABYSITTER";
 
@@ -53,7 +54,7 @@ export default function SignupPage() {
   const onSubmit: SubmitHandler<ISignupInput> = async (data) => {
     const payload = { ...data, role };
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      const apiUrl = getApiUrl();
       const response = await axios.post(
         `${apiUrl}/auth/register`,
         payload
@@ -70,7 +71,10 @@ export default function SignupPage() {
       }
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
-        toast.error(error.response?.data?.message || "Registration failed.");
+        toast.error(
+          error.response?.data?.message ||
+            "Registration failed. Check API URL and backend CORS settings."
+        );
       }
     }
   };
@@ -84,7 +88,7 @@ export default function SignupPage() {
         return;
       }
       const name = email.split("@")[0];
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      const apiUrl = getApiUrl();
       const response = await axios.post(`${apiUrl}/auth/social`, {
         email,
         name,
@@ -99,7 +103,10 @@ export default function SignupPage() {
       }
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
-        toast.error(error.response?.data?.message || "Social signup failed.");
+        toast.error(
+          error.response?.data?.message ||
+            "Social signup failed. Check API URL and backend CORS settings."
+        );
       }
     } finally {
       setSocialLoading(null);

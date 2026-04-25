@@ -68,7 +68,20 @@ The frontend will run on **http://localhost:3000**.
 
 ---
 
-## 4. Test Accounts
+## 4. Production Deployment Notes (Vercel)
+
+- **Frontend (Vercel env):**
+  - `NEXT_PUBLIC_API_URL=https://<your-backend-domain>/api`
+- **Backend env:**
+  - `CLIENT_URL=https://<your-vercel-domain>`
+  - `CLIENT_URLS=https://<your-vercel-domain>,https://<your-preview-domain>` (optional, comma-separated)
+  - `ALLOW_VERCEL_PREVIEW_ORIGINS=true` (allows `https://*.vercel.app`)
+
+Without these values, login/signup requests can fail from production even with correct credentials.
+
+---
+
+## 5. Test Accounts
 
 | Role | Email | Password |
 |------|-------|----------|
@@ -78,7 +91,7 @@ The frontend will run on **http://localhost:3000**.
 
 ---
 
-## 5. Feature Testing Workflow
+## 6. Feature Testing Workflow
 
 1. **Registration & Approval** — Register as parent/sitter → Admin approves → Email notification
 2. **Find Babysitter** — Use Smart Match™ or browse sitters → Book → Sitter receives notification

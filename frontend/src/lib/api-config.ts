@@ -1,6 +1,8 @@
 export const getApiUrl = (): string => {
-  if (typeof window !== "undefined") {
-    return process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+  const configuredUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
+  if (configuredUrl) {
+    return configuredUrl.replace(/\/+$/, "");
   }
-  return process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+
+  return "http://localhost:5000/api";
 };

@@ -38,13 +38,29 @@ import stripeRoutes from "./routes/stripeRoutes.js";
 const app = express();
 
 // --- Security Middlewares ---
-const allowedOrigins = [
-  process.env.CLIENT_URL,
+const parseAllowedOrigins = (origins?: string): string[] =>
+  (origins ?? "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
+const allowedOrigins = Array.from(
+  new Set([
+    process.env.CLIENT_URL,
+    process.env.FRONTEND_URL,
+    ...parseAllowedOrigins(process.env.CLIENT_URLS),
   "http://localhost:3000",
   "http://127.0.0.1:3000",
   "http://192.168.31.224:3000",
   "https://careconnect-orpin.vercel.app",
-].filter(Boolean) as string[];
+  ].filter(Boolean))
+) as string[];
+
+const allowVercelPreviewOrigins =
+  (process.env.ALLOW_VERCEL_PREVIEW_ORIGINS ?? "true").toLowerCase() === "true";
+
+const isVercelPreviewOrigin = (origin: string): boolean =>
+  /^https:\/\/[a-z0-9-]+\.vercel\.app$/i.test(origin);
 
 const corsOptions: cors.CorsOptions = {
   origin: function (
@@ -52,7 +68,12 @@ const corsOptions: cors.CorsOptions = {
     callback: (err: Error | null, allow?: boolean) => void
   ) {
     if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === "development") {
+
+    const isAllowedOrigin =
+      allowedOrigins.includes(origin) ||
+      (allowVercelPreviewOrigins && isVercelPreviewOrigin(origin));
+
+    if (isAllowedOrigin || process.env.NODE_ENV === "development") {
       callback(null, true);
     } else {
       callback(new Error("Not allowed by CORS"));

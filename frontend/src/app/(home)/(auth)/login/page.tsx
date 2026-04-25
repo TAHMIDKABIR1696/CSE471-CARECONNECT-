@@ -8,6 +8,7 @@ import axios, { AxiosError } from "axios";
 import toast from "react-hot-toast";
 import { Mail, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
 import ImageWithFallback from "@/components/image-with-fallback";
+import { getApiUrl } from "@/lib/api-config";
 
 interface ILoginInput {
   email: string;
@@ -42,7 +43,7 @@ export default function LoginPage() {
 
   const onSubmit: SubmitHandler<ILoginInput> = async (data) => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      const apiUrl = getApiUrl();
       const response = await axios.post(
         `${apiUrl}/auth/login`,
         data
@@ -57,7 +58,10 @@ export default function LoginPage() {
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
         const serverError = error as AxiosError<IErrorResponse>;
-        toast.error(serverError.response?.data?.message || "Login failed.");
+        toast.error(
+          serverError.response?.data?.message ||
+            "Login failed. Check API URL and backend CORS settings."
+        );
       }
     }
   };
@@ -71,7 +75,7 @@ export default function LoginPage() {
         return;
       }
       const name = email.split("@")[0];
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      const apiUrl = getApiUrl();
       const response = await axios.post(`${apiUrl}/auth/social`, {
         email,
         name,
@@ -86,7 +90,10 @@ export default function LoginPage() {
       }
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
-        toast.error(error.response?.data?.message || "Social login failed.");
+        toast.error(
+          error.response?.data?.message ||
+            "Social login failed. Check API URL and backend CORS settings."
+        );
       }
     } finally {
       setSocialLoading(null);
