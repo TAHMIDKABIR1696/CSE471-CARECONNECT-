@@ -5,6 +5,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useAuth } from "@/hooks/use-auth";
+import { getApiUrl } from "@/lib/api-config";
 import {
   Baby,
   Plus,
@@ -68,7 +69,7 @@ export default function ChildrenPage() {
   const fetchChildren = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get("http://localhost:5000/api/children", {
+      const response = await axios.get(`${getApiUrl()}/children`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (response.data.success) {
@@ -94,7 +95,7 @@ export default function ChildrenPage() {
       if (editingId) {
         // UPDATE
         const response = await axios.put(
-          `http://localhost:5000/api/children/${editingId}`,
+          `${getApiUrl()}/children/${editingId}`,
           data,
           {
             headers: { Authorization: `Bearer ${token}` },
@@ -112,7 +113,7 @@ export default function ChildrenPage() {
       } else {
         // ADD
         const response = await axios.post(
-          "http://localhost:5000/api/children",
+          `${getApiUrl()}/children`,
           data,
           {
             headers: { Authorization: `Bearer ${token}` },
@@ -156,7 +157,7 @@ export default function ChildrenPage() {
 
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`http://localhost:5000/api/children/${deleteId}`, {
+      await axios.delete(`${getApiUrl()}/children/${deleteId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success("Profile deleted");

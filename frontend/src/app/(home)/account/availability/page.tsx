@@ -5,6 +5,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { Clock, Save, Loader2, CheckCircle2, CalendarDays } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
+import { getApiUrl } from "@/lib/api-config";
 
 const DAYS = [
   "MONDAY",
@@ -45,7 +46,7 @@ export default function AvailabilityPage() {
       try {
         const token = localStorage.getItem("token");
         const response = await axios.get(
-          "http://localhost:5000/api/sitters/availability",
+          `${getApiUrl()}/sitters/availability`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -111,7 +112,7 @@ export default function AvailabilityPage() {
         }));
 
       await axios.post(
-        "http://localhost:5000/api/sitters/availability",
+        `${getApiUrl()}/sitters/availability`,
         { schedule: activeSchedule },
         { headers: { Authorization: `Bearer ${token}` } }
       );

@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import axios from "axios";
 import { useAuth } from "@/hooks/use-auth";
+import { getApiUrl } from "@/lib/api-config";
 import {
   MapPin,
   Phone,
@@ -57,7 +58,7 @@ export default function ProfileViewPage() {
         const token = localStorage.getItem("token");
         if (!token) return;
         const response = await axios.get(
-          "http://localhost:5000/api/user/profile",
+          `${getApiUrl()}/user/profile`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }

@@ -53,19 +53,18 @@ export default function SignupPage() {
   const onSubmit: SubmitHandler<ISignupInput> = async (data) => {
     const payload = { ...data, role };
     try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
       const response = await axios.post(
-        "http://localhost:5000/api/auth/register",
+        `${apiUrl}/auth/register`,
         payload
       );
 
       if (response.data.success) {
-        // 🔥 নতুন পরিবর্তন: টোকেন এবং ইউজার ডাটা সেভ করা
         localStorage.setItem("token", response.data.token);
         localStorage.setItem("user", JSON.stringify(response.data.user));
 
         toast.success(`Welcome ${data.name}! Redirecting...`);
 
-        // এখন সরাসরি অ্যাকাউন্টে পাঠালে আর ব্যাক করবে না
         router.push("/account");
         router.refresh();
       }
@@ -85,7 +84,8 @@ export default function SignupPage() {
         return;
       }
       const name = email.split("@")[0];
-      const response = await axios.post("http://localhost:5000/api/auth/social", {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      const response = await axios.post(`${apiUrl}/auth/social`, {
         email,
         name,
         provider,

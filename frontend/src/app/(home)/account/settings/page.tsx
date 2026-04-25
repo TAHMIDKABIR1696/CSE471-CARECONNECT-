@@ -5,6 +5,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useAuth } from "@/hooks/use-auth";
+import { getApiUrl } from "@/lib/api-config";
 import {
   User,
   MapPin,
@@ -101,7 +102,7 @@ export default function SettingsPage() {
         if (!token) return;
 
         const response = await axios.get(
-          "http://localhost:5000/api/user/profile",
+          `${getApiUrl()}/user/profile`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -156,7 +157,7 @@ export default function SettingsPage() {
       };
 
       const response = await axios.put(
-        "http://localhost:5000/api/user/update-profile",
+        `${getApiUrl()}/user/update-profile`,
         payload,
         { headers: { Authorization: `Bearer ${token}` } }
       );

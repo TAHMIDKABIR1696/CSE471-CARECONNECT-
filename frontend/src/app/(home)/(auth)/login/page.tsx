@@ -42,8 +42,9 @@ export default function LoginPage() {
 
   const onSubmit: SubmitHandler<ILoginInput> = async (data) => {
     try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
       const response = await axios.post(
-        "http://localhost:5000/api/auth/login",
+        `${apiUrl}/auth/login`,
         data
       );
       if (response.data.success) {
@@ -70,7 +71,8 @@ export default function LoginPage() {
         return;
       }
       const name = email.split("@")[0];
-      const response = await axios.post("http://localhost:5000/api/auth/social", {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      const response = await axios.post(`${apiUrl}/auth/social`, {
         email,
         name,
         provider,

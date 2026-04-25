@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import proxy from "@/lib/proxy";
+import { getApiUrl } from "@/lib/api-config";
 import toast from "react-hot-toast";
 import {
   FileBadge,
@@ -235,7 +236,7 @@ export default function CertificationsPage() {
 
               <div className="pt-4 border-t border-slate-100">
                 <a
-                  href={`http://localhost:5000${cert.documentUrl}`}
+                  href={`${getApiUrl()}${cert.documentUrl}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-bold text-purple-600 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors"
