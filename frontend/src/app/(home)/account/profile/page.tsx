@@ -82,12 +82,14 @@ export default function ProfileViewPage() {
 
   const isParent = profileData.role === "PARENT";
   const details = isParent ? profileData.parentProfile : profileData.babysitter;
-  const profileRating = !isParent
-    ? Number(details?.averageRating || 0).toFixed(1)
+  const profileRating = !isParent && details && 'averageRating' in details
+    ? Number(details.averageRating || 0).toFixed(1)
     : "N/A";
-  const profileRatingMeta = !isParent
-    ? `Based on ${details?.totalRatings || 0} reviews`
-    : `${details?.children?.length || 0} child profile(s) linked`;
+  const profileRatingMeta = !isParent && details && 'totalRatings' in details
+    ? `Based on ${details.totalRatings || 0} reviews`
+    : isParent && details && 'children' in details
+    ? `${details.children?.length || 0} child profile(s) linked`
+    : "No data available";
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -186,29 +188,33 @@ export default function ProfileViewPage() {
             <h3 className="font-bold text-slate-900 mb-4 flex items-center gap-2">
               {isParent ? "Family Requirements & Situation" : "About Me & Bio"}
             </h3>
-            {isParent ? (
+            {isParent && details && 'situation' in details ? (
               <p className="text-slate-600 leading-relaxed text-sm">
-                {details?.situation ||
+                {details.situation ||
                   "No family description added yet. Please go to settings to update your requirements."}
               </p>
-            ) : (
+            ) : !isParent && details && 'bio' in details ? (
               <p className="text-slate-600 leading-relaxed text-sm">
-                {details?.bio ||
+                {details.bio ||
                   "No bio added yet. Tell parents about yourself in settings."}
+              </p>
+            ) : (
+              <p className="text-slate-600 leading-relaxed text-sm text-gray-400">
+                No information available
               </p>
             )}
           </div>
 
           {/* Specific Attributes */}
           <div className="grid grid-cols-2 gap-4">
-            {isParent ? (
+            {isParent && details && 'minBudget' in details ? (
               <>
                 <div className="bg-white p-5 rounded-2xl border border-slate-100">
                   <span className="text-xs font-bold text-slate-400 uppercase">
                     Min Budget
                   </span>
                   <div className="text-xl font-bold text-slate-800 mt-1">
-                    {details?.minBudget ? `৳${details.minBudget}` : "N/A"}
+                    {details.minBudget ? `৳${details.minBudget}` : "N/A"}
                   </div>
                 </div>
                 <div className="bg-white p-5 rounded-2xl border border-slate-100">
@@ -216,7 +222,7 @@ export default function ProfileViewPage() {
                     Max Budget
                   </span>
                   <div className="text-xl font-bold text-slate-800 mt-1">
-                    {details?.maxBudget ? `৳${details.maxBudget}` : "N/A"}
+                    {details.maxBudget ? `৳${details.maxBudget}` : "N/A"}
                   </div>
                 </div>
                 <div className="bg-white p-5 rounded-2xl border border-slate-100 col-span-2">
@@ -224,18 +230,18 @@ export default function ProfileViewPage() {
                     Required Days
                   </span>
                   <div className="text-sm font-semibold text-slate-700 mt-1">
-                    {details?.requiredDays || "Not set"}
+                    {details.requiredDays || "Not set"}
                   </div>
                 </div>
               </>
-            ) : (
+            ) : !isParent && details && 'experienceYears' in details ? (
               <>
                 <div className="bg-white p-5 rounded-2xl border border-slate-100">
                   <span className="text-xs font-bold text-slate-400 uppercase flex items-center gap-2">
                     <Briefcase className="h-3 w-3" /> Experience
                   </span>
                   <div className="text-xl font-bold text-slate-800 mt-1">
-                    {details?.experienceYears || 0} Years
+                    {details.experienceYears || 0} Years
                   </div>
                 </div>
                 <div className="bg-white p-5 rounded-2xl border border-slate-100">
@@ -243,11 +249,11 @@ export default function ProfileViewPage() {
                     <DollarSign className="h-3 w-3" /> Hourly Rate
                   </span>
                   <div className="text-xl font-bold text-slate-800 mt-1">
-                    {details?.hourlyRate ? `৳${details.hourlyRate}/hr` : "N/A"}
+                    {details.hourlyRate ? `৳${details.hourlyRate}/hr` : "N/A"}
                   </div>
                 </div>
               </>
-            )}
+            ) : null}
           </div>
         </div>
       </div>
