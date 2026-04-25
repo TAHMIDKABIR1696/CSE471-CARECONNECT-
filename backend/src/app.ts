@@ -43,6 +43,7 @@ const allowedOrigins = [
   "http://localhost:3000",
   "http://127.0.0.1:3000",
   "http://192.168.31.224:3000",
+  "https://careconnect-orpin.vercel.app",
 ].filter(Boolean) as string[];
 
 const corsOptions: cors.CorsOptions = {
