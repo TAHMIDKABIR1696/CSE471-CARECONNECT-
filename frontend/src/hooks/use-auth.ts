@@ -3,19 +3,23 @@
 
 import { useState, useEffect } from "react";
 
+// @ts-ignore
+import { usePathname } from "next/navigation";
+
 export function useAuth() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState<{ 
+  const [user, setUser] = useState<{
     id?: number;
-    name?: string; 
-    email?: string; 
+    name?: string;
+    email?: string;
     role?: string;
     isApproved?: boolean;
     phoneNumber?: string;
   } | null>(null);
-  
+
   // 🛠️ লোডিং স্টেট ডিফল্ট true রাখুন
   const [isLoading, setIsLoading] = useState(true);
+  const pathname = usePathname();
 
   useEffect(() => {
     // এই ফাংশনটি শুধুমাত্র ব্রাউজারে রান করবে
@@ -48,7 +52,7 @@ export function useAuth() {
     };
 
     initializeAuth();
-  }, []); // Empty dependency array ensures it runs ONLY once after mount
+  }, [pathname]); // Re-run when pathname changes
 
   const logout = () => {
     localStorage.removeItem("token");

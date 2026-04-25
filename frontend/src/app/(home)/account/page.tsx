@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
 import proxy from "@/lib/proxy";
 import {
+  Activity,
   User,
   Calendar,
   ShieldCheck,
@@ -15,12 +16,36 @@ import {
   Clock,
   CreditCard,
   Loader2,
+  Navigation,
 } from "lucide-react";
+
+interface ILiveSession {
+  id: string;
+  status: string;
+  startTime: string;
+  endTime: string;
+  actualStart: string | null;
+  actualEnd: string | null;
+  gpsLogs?: Array<{ lat: number | null; lng: number | null; time: string }> | null;
+  liveSession?: {
+    status: "ACTIVE" | "PAUSED" | "COMPLETED" | "CANCELLED";
+    lastUpdate?: string;
+  } | null;
+  parent?: { user: { name: string; email: string } };
+  babysitter?: { user: { name: string; email: string } };
+}
+
+const hasValidCoordinates = (
+  point: { lat: number | null; lng: number | null } | null
+): point is { lat: number; lng: number } => {
+  return point !== null && typeof point.lat === "number" && typeof point.lng === "number";
+};
 
 export default function AccountOverviewPage() {
   const router = useRouter();
   const { user: authUser, isAuthenticated, isLoading } = useAuth();
   const [user, setUser] = useState<any>(null);
+  const [liveSessions, setLiveSessions] = useState<ILiveSession[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Fetch fresh user data to ensure we have the correct role
@@ -28,9 +53,13 @@ export default function AccountOverviewPage() {
     const fetchUserData = async () => {
       if (!isLoading && isAuthenticated) {
         try {
-          const response = await proxy.get("/user/profile");
-          if (response.data.success) {
-            const userData = response.data.user;
+          const [profileResponse, liveSessionsResponse] = await Promise.all([
+            proxy.get("/user/profile"),
+            proxy.get("/sessions/live").catch(() => null),
+          ]);
+
+          if (profileResponse.data.success) {
+            const userData = profileResponse.data.user;
             // Update localStorage with fresh data
             localStorage.setItem("user", JSON.stringify({
               id: userData.id,
@@ -44,6 +73,9 @@ export default function AccountOverviewPage() {
           } else {
             setUser(authUser);
           }
+
+          const liveSessionsData = liveSessionsResponse?.data?.sessions;
+          setLiveSessions(Array.isArray(liveSessionsData) ? liveSessionsData : []);
         } catch (error) {
           console.error("Error fetching user profile:", error);
           setUser(authUser);
@@ -57,6 +89,28 @@ export default function AccountOverviewPage() {
 
     fetchUserData();
   }, [isAuthenticated, isLoading, router]);
+
+  const formatDate = (dateString: string) =>
+    new Date(dateString).toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+  const getSessionProgress = (session: ILiveSession) => {
+    const start = new Date(session.actualStart || session.startTime).getTime();
+    const end = new Date(session.endTime).getTime();
+    const plannedDuration = end - new Date(session.startTime).getTime();
+    if (plannedDuration <= 0) return 0;
+
+    const referenceTime =
+      session.liveSession?.status === "PAUSED" && session.liveSession.lastUpdate
+        ? new Date(session.liveSession.lastUpdate).getTime()
+        : Date.now();
+
+    return Math.min(100, Math.max(0, Math.round(((referenceTime - start) / plannedDuration) * 100)));
+  };
 
   if (loading || isLoading) {
     return (
@@ -82,6 +136,141 @@ export default function AccountOverviewPage() {
           Here is what's happening with your account today.
         </p>
       </div>
+
+      {(user?.role === "BABYSITTER" || user?.role === "PARENT") && (
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 flex items-start justify-between gap-4">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                Quick Access
+              </p>
+              <h3 className="mt-2 text-lg font-bold text-slate-900">
+                {user?.role === "BABYSITTER"
+                  ? "Manage live sessions"
+                  : "Track live sessions"}
+              </h3>
+              <p className="mt-1 text-sm text-slate-500">
+                {user?.role === "BABYSITTER"
+                  ? "Open the page where you can start, pause, resume, complete, or cancel sessions."
+                  : "Open the page where you can monitor babysitting progress and location updates."}
+              </p>
+            </div>
+            <a
+              href="/account/sessions"
+              className="shrink-0 inline-flex items-center justify-center rounded-xl bg-purple-600 px-4 py-2 text-sm font-semibold text-white hover:bg-purple-700 transition"
+            >
+              Open Sessions
+            </a>
+          </div>
+
+          {user?.role === "BABYSITTER" && (
+            <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                  Work Queue
+                </p>
+                <h3 className="mt-2 text-lg font-bold text-slate-900">
+                  Review job requests
+                </h3>
+                <p className="mt-1 text-sm text-slate-500">
+                  Check confirmed bookings and start a session when the visit begins.
+                </p>
+              </div>
+              <a
+                href="/account/bookings"
+                className="shrink-0 inline-flex items-center justify-center rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 transition"
+              >
+                Open Bookings
+              </a>
+            </div>
+          )}
+        </div>
+      )}
+
+      {liveSessions.length > 0 && (
+        <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 space-y-4">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h3 className="font-bold text-lg text-slate-800 flex items-center gap-2">
+                <Activity className="h-5 w-5 text-red-500 animate-pulse" />
+                Active Session Progress
+              </h3>
+              <p className="text-sm text-slate-500">
+                Real-time updates for your current babysitting session.
+              </p>
+            </div>
+            <a
+              href="/account/sessions"
+              className="text-sm font-semibold text-purple-600 hover:text-purple-700"
+            >
+              Open session board
+            </a>
+          </div>
+
+          <div className="grid gap-4">
+            {liveSessions.map((session) => {
+              const otherParty = user?.role === "PARENT"
+                ? session.babysitter?.user
+                : session.parent?.user;
+              const liveStatus = session.liveSession?.status || "ACTIVE";
+              const progress = getSessionProgress(session);
+              const lastKnownLocation = session.gpsLogs?.length
+                ? session.gpsLogs[session.gpsLogs.length - 1]
+                : null;
+              const hasLatestCoordinates = hasValidCoordinates(lastKnownLocation);
+
+              return (
+                <div key={session.id} className="rounded-2xl border border-slate-100 p-4 md:p-5 bg-slate-50/80 space-y-4">
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                    <div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h4 className="font-bold text-slate-900">Session #{session.id}</h4>
+                        <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">
+                          {liveStatus}
+                        </span>
+                      </div>
+                      <p className="text-sm text-slate-600 mt-1">
+                        {otherParty ? `With ${otherParty.name}` : "In progress"}
+                      </p>
+                    </div>
+                    <div className="text-sm text-slate-600 flex items-center gap-2">
+                      <Navigation className="h-4 w-4" />
+                      {progress}% complete
+                    </div>
+                  </div>
+
+                  <div className="h-2 w-full rounded-full bg-white overflow-hidden">
+                    <div className="h-full rounded-full bg-gradient-to-r from-purple-600 to-emerald-500" style={{ width: `${progress}%` }} />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm text-slate-600">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4 text-slate-400" />
+                      <span>Started {formatDate(session.actualStart || session.startTime)}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-slate-400" />
+                      <span>
+                        {session.liveSession?.status === "PAUSED"
+                          ? "Paused"
+                          : "Running"}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-slate-400" />
+                      <span>
+                        {hasLatestCoordinates
+                          ? `${lastKnownLocation.lat.toFixed(5)}, ${lastKnownLocation.lng.toFixed(5)}`
+                          : "Waiting for location"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* LEFT COLUMN: Stats & Quick Info */}
@@ -164,7 +353,7 @@ export default function AccountOverviewPage() {
                     Payment Received
                   </h4>
                   <p className="text-xs text-slate-500 mt-1">
-                    Received $50.00 via Stripe.
+                    Received payment approved via bKash.
                   </p>
                 </div>
                 <span className="ml-auto text-xs text-slate-400 font-medium">

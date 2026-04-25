@@ -49,6 +49,7 @@ async function main(): Promise<void> {
   await prisma.child.deleteMany();
   await prisma.sOSAlert.deleteMany();
   await prisma.adminLog.deleteMany();
+  await prisma.notification.deleteMany();
   await prisma.parent.deleteMany();
   await prisma.babysitter.deleteMany();
   await prisma.emergencyContact.deleteMany();

@@ -6,7 +6,6 @@ import { fileURLToPath } from "url";
 import prisma from "./config/db.js";
 import { requestId } from "./middleware/requestId.js";
 import { sanitizeInputs } from "./middleware/sanitizer.js";
-import { apiLimiter, authLimiter, sensitiveLimiter } from "./middleware/rateLimiter.js";
 import {
   globalErrorHandler,
   notFoundHandler,
@@ -33,8 +32,8 @@ import chatbotRoutes from "./routes/chatbotRoutes.js";
 import activityRoutes from "./routes/activityRoutes.js";
 import uploadRoutes from "./routes/uploadRoutes.js";
 import videoRoutes from "./routes/videoRoutes.js";
-import stripeRoutes from "./routes/stripeRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
+import subscriptionPaymentRoutes from "./routes/subscriptionPaymentRoutes.js";
 
 const app = express();
 
@@ -82,12 +81,11 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 // --- Request Tracing & Sanitization ---
 app.use(requestId);
 app.use(sanitizeInputs);
-app.use(apiLimiter);
 
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 // --- Route Mounting ---
-app.use("/api/auth", authLimiter, authRoutes);
+app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/children", childRoutes);
 app.use("/api/sitters", sitterRoutes);
@@ -103,8 +101,8 @@ app.use("/api/chatbot", chatbotRoutes);
 app.use("/api/activities", activityRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/video", videoRoutes);
-app.use("/api/stripe", sensitiveLimiter, stripeRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/subscription-payments", subscriptionPaymentRoutes);
 
 // --- Health Check ---
 app.get("/", (_req: Request, res: Response) => {

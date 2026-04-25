@@ -78,6 +78,7 @@ model User {
   profilePicture String?
   phoneNumber    String?
   isBanned       Boolean     @default(false)
+  subscriptionPlan String    @default("Basic")
   createdAt      DateTime    @default(now())
   updatedAt      DateTime    @updatedAt
 
@@ -89,6 +90,7 @@ model User {
   sosAlerts       SOSAlert[]
   adminLogs       AdminLog[]
   notifications   Notification[]
+  subscriptionPayments SubscriptionPayment[]
 }
 
 // --------------------------------------
@@ -304,6 +306,24 @@ model Payment {
   method        String?
 
   paymentDate DateTime @default(now())
+}
+
+// --------------------------------------
+// 9.5. Subscription Payment System
+// --------------------------------------
+
+model SubscriptionPayment {
+  id            String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String  @db.ObjectId
+  user          User    @relation(fields: [userId], references: [id])
+  planName      String
+  amount        Float
+  currency      String        @default("BDT")
+  transactionId String  @unique
+  method        String?
+  status        PaymentStatus @default(PENDING)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 // --------------------------------------

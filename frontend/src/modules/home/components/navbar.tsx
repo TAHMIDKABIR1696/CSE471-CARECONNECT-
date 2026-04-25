@@ -64,6 +64,7 @@ const Navbar = () => {
             <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-500 bg-clip-text text-transparent">
               CareConnect
             </span>
+            
           </Link>
 
           {/* Desktop Menu */}

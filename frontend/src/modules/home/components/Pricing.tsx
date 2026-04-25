@@ -1,7 +1,11 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Check, Star, Shield } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
+// @ts-ignore
+import { useRouter } from "next/navigation";
+import BkashSubscriptionPaymentModal from "@/components/payment/bkash-subscription-payment-modal";
 
 const plans = [
   {
@@ -99,8 +103,44 @@ const additionalCosts = [
 ];
 
 const Pricing = () => {
+  const { isAuthenticated, user } = useAuth();
+  const router = useRouter();
+  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState("");
+  const [selectedAmount, setSelectedAmount] = useState(0);
+
+  const handlePlanClick = (planName: string, price: string) => {
+    if (!isAuthenticated) {
+      router.push("/login?redirect=/pricing");
+      return;
+    }
+
+    if (planName === "Basic") {
+      router.push("/account");
+      return;
+    }
+
+    // Assuming a conversion rate of 120 BDT per USD, adjust if needed
+    const numericPrice = parseFloat(price);
+    const amountInBdt = numericPrice * 120;
+    
+    setSelectedPlan(planName);
+    setSelectedAmount(amountInBdt);
+    setIsModalOpen(true);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50">
+      <BkashSubscriptionPaymentModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        planName={selectedPlan}
+        amount={selectedAmount}
+        onSuccess={() => {
+          // Additional success logic if needed
+        }}
+      />
       {/* Header */}
       <div className="pt-32 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -149,6 +189,7 @@ const Pricing = () => {
                   </div>
 
                   <button
+                    onClick={() => handlePlanClick(plan.name, plan.price)}
                     className={`w-full py-3 rounded-lg font-semibold mb-6 transition-all ${
                       plan.popular
                         ? "bg-gradient-to-r from-purple-600 to-blue-500 text-white hover:shadow-lg"

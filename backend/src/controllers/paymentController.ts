@@ -1,6 +1,6 @@
 import { Response } from "express";
 import prisma from "../config/db.js";
-import { v4 as uuidv4 } from "uuid";
+import { createNotificationsBulk } from "../services/notificationService.js";
 import { AuthRequest } from "../types/index.js";
 
 /**
@@ -10,11 +10,11 @@ import { AuthRequest } from "../types/index.js";
 // Create payment
 export const createPayment = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { bookingId, amount, method, currency = "BDT" } = req.body;
+    const { bookingId, amount, senderNumber, txId, currency = "BDT" } = req.body;
     const userId = req.user!.id;
 
-    if (!bookingId || !amount) {
-      res.status(400).json({ message: "Missing required fields" });
+    if (!bookingId || !amount || !senderNumber || !txId) {
+      res.status(400).json({ message: "bookingId, amount, senderNumber, and txId are required" });
       return;
     }
 
@@ -36,20 +36,23 @@ export const createPayment = async (req: AuthRequest, res: Response): Promise<vo
       return;
     }
 
+    if (booking.status !== "CONFIRMED") {
+      res.status(400).json({ message: "Booking must be confirmed before payment" });
+      return;
+    }
+
     if (booking.payment) {
       res.status(400).json({ message: "Payment already exists for this booking" });
       return;
     }
 
-    const transactionId = `TXN-${uuidv4().substring(0, 8).toUpperCase()}-${Date.now()}`;
-
     const payment = await prisma.payment.create({
       data: {
         bookingId: booking.id,
-        transactionId,
+        transactionId: String(txId).trim(),
         amount: parseFloat(amount),
         currency,
-        method: method || "Cash",
+        method: `BKASH:${String(senderNumber).trim()}`,
         status: "PENDING",
       },
       include: {
@@ -62,9 +65,28 @@ export const createPayment = async (req: AuthRequest, res: Response): Promise<vo
       },
     });
 
+    try {
+      const admins = await prisma.user.findMany({
+        where: { role: "ADMIN" },
+        select: { id: true },
+      });
+
+      await createNotificationsBulk(
+        admins.map((admin) => ({
+          userId: admin.id,
+          type: "PAYMENT",
+          title: "Manual payment submitted",
+          body: `New bKash payment request for booking ${booking.id} needs review.`,
+          link: "/admin/payments",
+        }))
+      );
+    } catch (notificationError) {
+      console.error("Create payment admin notification error:", notificationError);
+    }
+
     res.status(201).json({
       success: true,
-      message: "Payment created successfully",
+      message: "bKash payment submitted. Waiting for admin approval.",
       payment,
     });
   } catch (error) {
@@ -77,7 +99,10 @@ export const createPayment = async (req: AuthRequest, res: Response): Promise<vo
 export const confirmPayment = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const paymentId = req.params.paymentId as string;
-    const userId = req.user!.id;
+    if (req.user!.role !== "ADMIN") {
+      res.status(403).json({ message: "Admin only" });
+      return;
+    }
 
     const payment = await prisma.payment.findUnique({
       where: { id: paymentId },
@@ -85,6 +110,7 @@ export const confirmPayment = async (req: AuthRequest, res: Response): Promise<v
         booking: {
           include: {
             parent: { include: { user: true } },
+            babysitter: { include: { user: true } },
           },
         },
       },
@@ -95,8 +121,8 @@ export const confirmPayment = async (req: AuthRequest, res: Response): Promise<v
       return;
     }
 
-    if (payment.booking.parent.userId !== userId && req.user!.role !== "ADMIN") {
-      res.status(403).json({ message: "Not authorized" });
+    if (payment.status === "COMPLETED") {
+      res.status(400).json({ message: "Payment already approved" });
       return;
     }
 
@@ -109,14 +135,112 @@ export const confirmPayment = async (req: AuthRequest, res: Response): Promise<v
       include: { booking: true },
     });
 
+    try {
+      await createNotificationsBulk([
+        {
+          userId: payment.booking.parent.userId,
+          type: "PAYMENT",
+          title: "Payment approved",
+          body: `Your bKash payment for booking ${payment.booking.id} is approved.`,
+          link: "/account/payments",
+        },
+        {
+          userId: payment.booking.babysitter.userId,
+          type: "PAYMENT",
+          title: "Payment approved",
+          body: `Payment for booking ${payment.booking.id} is approved by admin.`,
+          link: "/account/payments",
+        },
+      ]);
+    } catch (notificationError) {
+      console.error("Approve payment notification error:", notificationError);
+    }
+
     res.status(200).json({
       success: true,
-      message: "Payment confirmed",
+      message: "Payment approved",
       payment: updatedPayment,
     });
   } catch (error) {
     console.error("Confirm Payment Error:", error);
     res.status(500).json({ message: "Failed to confirm payment" });
+  }
+};
+
+// Reject payment (Admin)
+export const rejectPayment = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const paymentId = req.params.paymentId as string;
+
+    if (req.user!.role !== "ADMIN") {
+      res.status(403).json({ message: "Admin only" });
+      return;
+    }
+
+    const payment = await prisma.payment.findUnique({
+      where: { id: paymentId },
+      include: {
+        booking: {
+          include: {
+            parent: { include: { user: true } },
+            babysitter: { include: { user: true } },
+          },
+        },
+      },
+    });
+
+    if (!payment) {
+      res.status(404).json({ message: "Payment not found" });
+      return;
+    }
+
+    if (payment.status === "FAILED") {
+      res.status(400).json({ message: "Payment already rejected" });
+      return;
+    }
+
+    if (payment.status === "COMPLETED") {
+      res.status(400).json({ message: "Approved payment cannot be rejected" });
+      return;
+    }
+
+    const updatedPayment = await prisma.payment.update({
+      where: { id: payment.id },
+      data: {
+        status: "FAILED",
+      },
+      include: { booking: true },
+    });
+
+    try {
+      await createNotificationsBulk([
+        {
+          userId: payment.booking.parent.userId,
+          type: "PAYMENT",
+          title: "Payment rejected",
+          body: `Your bKash payment for booking ${payment.booking.id} was rejected. Please resubmit.`,
+          link: "/account/bookings",
+        },
+        {
+          userId: payment.booking.babysitter.userId,
+          type: "PAYMENT",
+          title: "Payment rejected",
+          body: `Payment for booking ${payment.booking.id} was rejected by admin.`,
+          link: "/account/payments",
+        },
+      ]);
+    } catch (notificationError) {
+      console.error("Reject payment notification error:", notificationError);
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Payment rejected",
+      payment: updatedPayment,
+    });
+  } catch (error) {
+    console.error("Reject Payment Error:", error);
+    res.status(500).json({ message: "Failed to reject payment" });
   }
 };
 

@@ -1,18 +1,14 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import toast from "react-hot-toast";
 import { useAuth } from "@/hooks/use-auth";
 import proxy from "@/lib/proxy";
-import StripePaymentModal from "@/components/payment/stripe-payment-modal";
+import BkashManualPaymentModal from "@/components/payment/bkash-manual-payment-modal";
 import {
   CalendarCheck,
   Clock,
   CheckCircle,
-  XCircle,
-  MapPin,
-  User,
   Loader2,
   CreditCard,
 } from "lucide-react";
@@ -30,6 +26,7 @@ interface IBooking {
     id: number;
     status: string;
     transactionId: string;
+    method?: string;
   };
   // Parent এর জন্য Sitter ডাটা
   babysitter?: {
@@ -51,6 +48,15 @@ export default function BookingsPage() {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<IBooking | null>(null);
 
+  const getErrorMessage = (error: unknown, fallback: string) => {
+    if (typeof error === "object" && error !== null && "response" in error) {
+      const response = error as { response?: { data?: { message?: string } } };
+      return response.response?.data?.message || fallback;
+    }
+
+    return fallback;
+  };
+
   // Fetch Bookings
   const fetchBookings = async () => {
     try {
@@ -67,10 +73,9 @@ export default function BookingsPage() {
         console.log("No bookings found or invalid response");
         setBookings([]);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Fetch Error", error);
-      console.error("Error response:", error.response?.data); // Debug log
-      toast.error(error.response?.data?.message || "Failed to load bookings");
+      toast.error(getErrorMessage(error, "Failed to load bookings"));
       setBookings([]);
     } finally {
       setLoading(false);
@@ -82,9 +87,9 @@ export default function BookingsPage() {
   }, []);
 
   const handlePaymentSuccess = () => {
-    // Refresh bookings after successful payment
+    // Refresh bookings after manual payment submission
     fetchBookings();
-    toast.success("Payment completed successfully!");
+    toast.success("Payment submitted for admin approval!");
   };
 
   const openPaymentModal = (booking: IBooking) => {
@@ -108,11 +113,11 @@ export default function BookingsPage() {
 
       // UI আপডেট (Reload না করে)
       setBookings((prev) =>
-        prev.map((b) => (b.id === id ? { ...b, status: newStatus as any } : b))
+        prev.map((b) => (b.id === id ? { ...b, status: newStatus as IBooking["status"] } : b))
       );
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Update error:", error);
-      toast.error(error.response?.data?.message || "Action failed");
+      toast.error(getErrorMessage(error, "Action failed"));
     } finally {
       setActionLoading(null);
     }
@@ -291,7 +296,7 @@ export default function BookingsPage() {
                         className="px-4 py-2 text-xs font-bold text-white bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors flex items-center gap-2"
                       >
                         <CreditCard className="h-3 w-3" />
-                        Pay Now
+                        Pay via bKash
                       </button>
                     )}
 
@@ -318,9 +323,9 @@ export default function BookingsPage() {
         })}
       </div>
 
-      {/* Stripe Payment Modal */}
+      {/* Manual bKash Payment Modal */}
       {selectedBooking && (
-        <StripePaymentModal
+        <BkashManualPaymentModal
           isOpen={showPaymentModal}
           onClose={() => {
             setShowPaymentModal(false);

@@ -25,6 +25,7 @@ import {
   CreditCard,
   Activity,
   Star,
+  Bell,
 } from "lucide-react";
 
 export function AccountSidebar() {
@@ -35,6 +36,7 @@ export function AccountSidebar() {
   const commonItems = [
     { label: "Overview", href: "/account", icon: LayoutDashboard },
     { label: "My Profile", href: "/account/profile", icon: User },
+    { label: "Notifications", href: "/account/notifications", icon: Bell },
   ];
 
   const parentItems = [

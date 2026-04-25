@@ -17,6 +17,7 @@ import {
   Users,
   ShieldCheck,
   CalendarDays,
+  CreditCard,
   Settings,
   LogOut,
   ChevronLeft,
@@ -43,6 +44,8 @@ export default function AdminSidebar({
     { label: "Approvals", href: "/admin/approvals", icon: ShieldCheck },
     { label: "All Users", href: "/admin/users", icon: Users },
     { label: "Bookings", href: "/admin/bookings", icon: CalendarDays },
+    { label: "Payments", href: "/admin/payments", icon: CreditCard },
+    { label: "Subscriptions", href: "/admin/subscription-payments", icon: CreditCard },
     { label: "Settings", href: "/admin/settings", icon: Settings },
   ];
 

@@ -228,6 +228,16 @@ export const getAllBookings = async (_req: AuthRequest, res: Response): Promise<
         babysitter: {
           include: { user: { select: { name: true, email: true } } },
         },
+        payment: {
+          select: {
+            id: true,
+            status: true,
+            transactionId: true,
+            method: true,
+            amount: true,
+            paymentDate: true,
+          },
+        },
       },
       orderBy: { createdAt: "desc" },
     });

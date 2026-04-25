@@ -1,5 +1,6 @@
 import { Response } from "express";
 import prisma from "../config/db.js";
+import { createNotification } from "../services/notificationService.js";
 import { AuthRequest } from "../types/index.js";
 
 /**
@@ -109,6 +110,40 @@ export const sendMessage = async (req: AuthRequest, res: Response): Promise<void
       where: { id: conversationId },
       data: { updatedAt: new Date() },
     });
+
+    try {
+      const conversation = await prisma.conversation.findUnique({
+        where: { id: conversationId },
+        include: {
+          booking: {
+            include: {
+              parent: true,
+              babysitter: true,
+            },
+          },
+        },
+      });
+
+      const booking = conversation?.booking;
+      if (booking) {
+        const recipientUserId =
+          booking.parent.userId === senderId
+            ? booking.babysitter.userId
+            : booking.parent.userId;
+
+        if (recipientUserId !== senderId) {
+          await createNotification({
+            userId: recipientUserId,
+            type: "MESSAGE",
+            title: "New message",
+            body: messageContent.length > 80 ? `${messageContent.slice(0, 80)}...` : messageContent,
+            link: "/account/messages",
+          });
+        }
+      }
+    } catch (notificationError) {
+      console.error("Failed to create message notification:", notificationError);
+    }
 
     res.status(201).json({
       success: true,

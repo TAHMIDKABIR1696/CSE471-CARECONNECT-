@@ -1,0 +1,169 @@
+# Notifications System Implementation Guide
+
+## 1) Overview
+
+This document explains how the Notifications System is implemented in CareConnect.
+
+The feature includes:
+- Notification persistence in MongoDB via Prisma
+- Secure notification APIs for authenticated users
+- Automatic notification creation from key business events
+- Account dashboard bell dropdown with unread badge
+- Dedicated notifications page for full history and read-state updates
+
+## 2) Architecture
+
+### Flow
+1. A business event happens (booking/session/payment/SOS/message).
+2. Controller calls notification service helper.
+3. Notification is saved to the Notification collection.
+4. Frontend fetches unread count + latest list from API.
+5. User can mark one or all notifications as read.
+
+### Delivery mode
+Current implementation uses short polling (every 20 seconds) in the bell component.
+
+## 3) Database Model
+
+### Enum
+`NotificationType`
+- BOOKING
+- SESSION
+- PAYMENT
+- SOS
+- MESSAGE
+- SYSTEM
+
+### Model
+`Notification`
+- `id: String @id @default(auto()) @map("_id") @db.ObjectId`
+- `userId: String @db.ObjectId`
+- `type: NotificationType`
+- `title: String`
+- `body: String`
+- `link: String?`
+- `isRead: Boolean @default(false)`
+- `createdAt: DateTime @default(now())`
+- `updatedAt: DateTime @updatedAt`
+
+`User` has relation:
+- `notifications Notification[]`
+
+## 4) Backend API
+
+Base path: `/api/notifications`
+
+All endpoints require `Authorization: Bearer <token>`.
+
+### GET /
+Fetch current user's notifications.
+
+Query params:
+- `limit` (optional, default 20, max 100)
+- `unreadOnly=true` (optional)
+
+Response:
+- `{ success: true, notifications: Notification[] }`
+
+### GET /unread-count
+Fetch unread count for current user.
+
+Response:
+- `{ success: true, unreadCount: number }`
+
+### PATCH /:id/read
+Mark a single notification as read.
+
+Response:
+- `{ success: true, notification: Notification }`
+
+### PATCH /read-all
+Mark all unread notifications for current user as read.
+
+Response:
+- `{ success: true, updatedCount: number }`
+
+## 5) Notification Service
+
+Shared helper methods are used by controllers:
+- `createNotification(payload)`
+- `createNotificationsBulk(payloads)`
+
+This keeps event-trigger logic simple and consistent.
+
+## 6) Event Triggers Implemented
+
+### Booking
+- New booking request -> notify babysitter
+- Booking status updated -> notify counterpart user
+
+### Session
+- Session started -> notify parent
+- Session completed -> notify parent
+
+### Payment
+- Payment completed -> notify parent and babysitter
+- Added duplicate-guard checks so already completed payment does not resend notifications
+
+### SOS
+- New SOS alert -> notify all admins
+- SOS resolved by admin -> notify affected user
+
+### Messaging
+- New message in booking conversation -> notify other participant
+
+## 7) Frontend Integration
+
+### Bell dropdown
+- Shows unread badge
+- Fetches unread count and latest notifications
+- Poll interval: 20 seconds
+- Can mark one or all as read
+- Opens full notifications page
+
+### Notifications page
+- Displays complete list (`limit=100`)
+- Mark one as read
+- Mark all as read
+
+### Navigation placement
+- Bell shown in account layout header
+- Notifications link added in account sidebar
+
+## 8) Setup and Migration
+
+Run after pulling latest changes:
+
+```bash
+cd backend
+npx prisma generate
+npx prisma db push
+npm run dev
+```
+
+Then run frontend:
+
+```bash
+cd frontend
+npm run dev
+```
+
+## 9) Quick Manual Test Plan
+
+1. Login as a parent and a sitter in different browsers/sessions.
+2. Parent creates a booking request.
+3. Open sitter account dashboard and verify unread badge increments.
+4. Open bell dropdown and verify booking notification appears.
+5. Click notification and verify it marks as read.
+6. Use "Mark all" and verify unread count becomes 0.
+7. Trigger other flows (session start/end, payment success, SOS, message) and verify notifications appear.
+
+## 10) Known Limitations and Next Steps
+
+Current implementation is polling-based (not websocket push).
+
+Recommended next improvements:
+- Add Socket.IO push for real-time notifications
+- Add notification type filters and pagination on UI
+- Add soft-delete/archive for old notifications
+- Add per-user notification preferences
